@@ -1,41 +1,9 @@
 %{
-
-//in file of react i need to put all import to start file and export the function of parser
-
-/*
-import Logical from './clases/Logical';
-import Relational from './clases/Relational';
-import Arithmetical from './clases/Arithmetical';
-import Value from './clases/Value';
-import Print from './clases/Print';
-import Declaration from './clases/Declaration.js';
-import Function from './clases/Function';
-import Return from './clases/Return';
-import Call from './clases/Call';
-import IfList from './clases/IfList';
-import Else from './clases/Else';
-import If from './clases/If';
-import While from './clases/While';
-import DoWhile from './clases/DoWhile';
-import Assignment from './clases/Assignment';
-import Switch from './clases/Switch';
-import For from './clases/For';
-import Unary from './clases/Unary'; 
-import Break from './clases/Break';
-import Continue from './clases/Continue';
-import Cast from './clases/Cast';
-import Type from './clases/Type';
-import Count from './clases/Counters';
-import SymbolTable from './clases/SymbolTable';
-export 
-*/
-
      var symbolt = new SymbolTable(null);
-     var count = new Count();
-     var errores = [];
      var global_var = [];
      var structures = [];
      var nuevo_arreglo = false;
+     var existe = false;
 %}
 
 /* Definición Léxica */
@@ -93,6 +61,7 @@ export
 
 //Reservadas
 "undefined"             return 'resundefined';
+"null"                  return 'resnull';
 "function"              return 'resfunction';
 "Array"                 return 'resarray';
 "number"                return 'resnumber';
@@ -130,7 +99,7 @@ export
 ([a-zA-Z"_"])[a-z0-9A-Z"_""ñ""Ñ"]*                     return 'id';
 <<EOF>>                 return 'EOF';
 
-.                       { try{ add_error_E( {error: yytext, type: 'LEXICO', line: yylloc.first_line, column: yylloc.first_column} ); }catch(e){} }
+.                       { try{ add_error_E( {error: yytext, type: 'LEXICO', line: yylloc.first_line, column: yylloc.first_column} ); }catch(e){ console.log(e); } }
 /lex
 
 /* Asociación de operadores y precedencia */
@@ -153,53 +122,51 @@ export
 %% /* Definición de la gramática */
 
 ini
-	: INSTRUCTIONS EOF {
+	: INSTRUCTIONSG EOF {
           console.log("todo termino bien")
           var tab = new SymbolTable(null);
+          tab.add_types(structures);
           var tmp = $1;
           for(let aux of tmp)
           {
                aux.operate(tab);
           }
-          /*
-          for(var i = 0; i< tmp.length; i++){
-               tmp[i].operate(tab);
-          }*/
-     }///*INSTRUCTIONSG*/ FUNCTION EOF { /*add_traduction($1); console.log(traduction); /*for (let entry of structures) {console.log(entry); }*/ }
+          structures = [];
+     }
      | EOF { console.log("termino vacio") }
 ;
 
 DEFTYPES
-     :restype TYPEDEFID igual corchetea ATTRIB corchetec { }
+     :restype TYPEDEFID igual corchetea ATTRIB corchetec puntocoma{ }
 ;
 
 TYPEDEFID
-     :id { structures.push({name: $1, atributes: []}); }
+     :id { existe = false; for(var d of structures){if(d.name === $1) { existe = true; break;}} if(!existe) structures.push({name: $1, atributes: []}); else try{ add_error_E( {error: "Ya existe un type con el nombre" + $1, type: 'SINTACTICO', line: this.row, column: this.column} ); }catch(e){ console.log(e); } }
 ;
 
 ATTRIB
-     :ATTRIB coma id dospuntos TYPES { structures[structures.length - 1].atributes.push({name: $3, type: $5}); }
-     |id dospuntos TYPES { structures[structures.length - 1].atributes.push({name: $1, type: $3}); }
+     :ATTRIB coma id dospuntos TYPES { if(!existe) structures[structures.length - 1].atributes.push({name: $3, type: $5.id}); }
+     |id dospuntos TYPES { if(!existe) structures[structures.length - 1].atributes.push({name: $1, type: $3.id}); }
 ;
 
 INSTRUCTIONSG
-	: INSTRUCTIONSG INSTRUCTIONG { $$ = $1 + $2; }
-	| INSTRUCTIONG { $$ = $1; }
+	: INSTRUCTIONG INSTRUCTIONSG  { if(Array.isArray($1)){ for(var a of $1){ if(a !== null)$2.unshift(a); }}else{if($1 !== null)$2.unshift($1);}  $$ = $2; /*deb*/}
+	| INSTRUCTIONG { if(Array.isArray($1)){ $$ = $1; }else{ if($1 !== null)$$ = [$1];else $$ = [];  } /*deb*/}
 ;
 
 INSTRUCTIONG
-	: FUNCTION { symbolt.addFunction($1); }
-     | DECLARATION puntocoma { if($1 != null){$1.type_var = Type.GLOBAL; global_var.push($1);} /* declaration inst */}
-     | ASSIGNMENT puntocoma { }
-     | DEFTYPES { }
-     | IF { }
-     | SWITCH { }
-     | WHILE { }
-     | DOWHILE puntocoma { }
-     | FOR { }
-     | PRINT puntocoma { }
-     | CALLF puntocoma { }
-     | error { try{ add_error_E( {error: yytext, type: 'SINTACTICO', line: @1.first_line, column: @1.first_column} ); }catch(e){} }
+	: FUNCTION {  existe = false; for(var d of symbolt.functions){if(d.id === $1.id) { existe = true; break;}} if(existe) symbolt.addFunction($1); else try{ add_error_E( {error: "Ya existe la funcion con el nombre" + $1.id, type: 'SINTACTICO', line: this.row, column: this.column} ); }catch(e){ console.log(e); } $$ = null; }
+     | DECLARATION puntocoma { if($1 != null){$1.type_var = Type.GLOBAL; global_var.push($1);} $$ = $1;/* declaration inst */}
+     | ASSIGMENTWITHTYPE puntocoma{ $$ = $1; }
+     | DEFTYPES { $$ = null; }
+     | IF { $$ = $1; }
+     | SWITCH { $$ = $1; }
+     | WHILE { $$ = $1; }
+     | DOWHILE puntocoma { $$ = $1; }
+     | FOR { $$ = $1; }
+     | PRINT puntocoma { $$ = $1; }
+     | CALLF puntocoma { $$ = $1; }
+     | error { try{ add_error_E( {error: yytext, type: 'SINTACTICO', line: @1.first_line, column: @1.first_column} ); }catch(e){ console.log(e); } }
 ;
 //(_type, _type_exp, _id, _param, _body, _row, _col)
 FUNCTION
@@ -220,15 +187,15 @@ TYPESF
 TYPE
      : resnumber { $$ = Type.ENTERO; }
      | resboolean { $$ = Type.BOOL; }
-     | resstring { $$ = Type.CARACTER; }
+     | resstring { $$ = Type.CADENA; }
      | id { $$ = $1; }
      //| resundefined { $$ = Type.OBJETO; }
 ;
 
 TYPES
      : resarray menor TYPES mayor { $$ = {id: $3, access: Type.VECTOR, type: Type.PRIMITIVO}; }
-     | TYPE llavea llavec { $$ = {id: $1, access: Type.VECTOR, type: Type.PRIMITIVO}; if($1 != Type.ENTERO && $1 != Type.BOOL && $1 != Type.CARACTER) $$.type = Type.OBJETO; }
-     | TYPE { $$ = {id: $1, access: Type.VALOR, type: Type.VALOR}; if($1 != Type.ENTERO && $1 != Type.BOOL && $1 != Type.CARACTER) $$.type = Type.OBJETO; }
+     | TYPE llavea llavec { $$ = {id: $1, access: Type.VECTOR, type: Type.PRIMITIVO}; if($1 != Type.ENTERO && $1 != Type.BOOL && $1 != Type.CADENA) $$.type = Type.OBJETO; }
+     | TYPE { $$ = {id: $1, access: Type.VALOR, type: Type.VALOR}; if($1 != Type.ENTERO && $1 != Type.BOOL && $1 != Type.CADENA) $$.type = Type.OBJETO; }
 ;
 
 MULTIDIMENSION
@@ -279,18 +246,19 @@ LISTIDPRIM
 ;
 
 DECBETHA
-     : id dospuntos TYPES ASSVALUE { $$ = []; $$.push(new Declaration($1,$4,$3.id,Type.VALOR,Type.LOCAL,null,/*Type.PRIMITIVO,0,*/this._$.first_line,this._$.first_column)); if(nuevo_arreglo) $$[$$.length-1].type = Type.ARREGLO; nuevo_arreglo = false;}
-     | id ASSVALUE{ $$ = []; $$.push(new Declaration($1,$2,undefined,Type.VALOR,Type.LOCAL,null,/*Type.PRIMITIVO,0,*/this._$.first_line,this._$.first_column)); if(nuevo_arreglo) $$[$$.length-1].type = Type.ARREGLO; nuevo_arreglo = false;}
+     : id dospuntos TYPES ASSVALUE { $$ = []; $$.push(new Declaration($1,$4,$3.id,Type.VALOR,Type.LOCAL,null,/*Type.PRIMITIVO,0,*/this._$.first_line,this._$.first_column)); if(nuevo_arreglo) {$$[$$.length-1].type = Type.ARREGLO; $$[$$.length-1].type_exp = Type.ARREGLO;} nuevo_arreglo = false;}
+     | id ASSVALUE{ $$ = []; $$.push(new Declaration($1,$2,undefined,Type.VALOR,Type.LOCAL,null,/*Type.PRIMITIVO,0,*/this._$.first_line,this._$.first_column)); if(nuevo_arreglo) {$$[$$.length-1].type = Type.ARREGLO; $$[$$.length-1].type_exp = Type.ARREGLO;} nuevo_arreglo = false;}
 ;
 
 DECALPHA
-     : coma id dospuntos TYPES ASSVALUE { $$ = $0; $$.push(new Declaration($2,$5,$4.id,Type.VALOR,Type.LOCAL,null,/*Type.PRIMITIVO,0,*/this._$.first_line,this._$.first_column)); /*testdec*/  if(nuevo_arreglo) $$[$$.length-1].type = Type.ARREGLO; nuevo_arreglo = false;  }
-     | coma id ASSVALUE{ $$ = $0; $$.push(new Declaration($2,$3,undefined,Type.VALOR,Type.LOCAL,null,/*Type.PRIMITIVO,0,*/this._$.first_line,this._$.first_column)); /*testdec*/ if(nuevo_arreglo) $$[$$.length-1].type = Type.ARREGLO; nuevo_arreglo = false;}
+     : coma id dospuntos TYPES ASSVALUE { $$ = $0; $$.push(new Declaration($2,$5,$4.id,Type.VALOR,Type.LOCAL,null,/*Type.PRIMITIVO,0,*/this._$.first_line,this._$.first_column)); /*testdec*/  if(nuevo_arreglo) {$$[$$.length-1].type = Type.ARREGLO; $$[$$.length-1].type_exp = Type.ARREGLO;} nuevo_arreglo = false;  }
+     | coma id ASSVALUE{ $$ = $0; $$.push(new Declaration($2,$3,undefined,Type.VALOR,Type.LOCAL,null,/*Type.PRIMITIVO,0,*/this._$.first_line,this._$.first_column)); /*testdec*/ if(nuevo_arreglo) {$$[$$.length-1].type = Type.ARREGLO; $$[$$.length-1].type_exp = Type.ARREGLO;} nuevo_arreglo = false;}
 ;
 
 ASSVALUE
      : igual EXPRT { $$ = $2; }
      | igual llavea llavec { $$ = undefined; nuevo_arreglo = true; }
+     | igual llavea DATAPRINT llavec { $$ = $3; nuevo_arreglo = true; }     
      | igual DECASSTYPE { $$ = $2; }
      | { $$ = undefined; }
 ;
@@ -318,49 +286,49 @@ INSTRUCTIONS
 
 INSTRUCTION
      : DECLARATION puntocoma { $$ = $1; }
-     | ASSIGMENTWITHTYPE { $$ = $1; }
+     | ASSIGMENTWITHTYPE puntocoma{ $$ = $1; }
      | IF { $$ = $1; }
      | SWITCH { $$ = $1; }
      | WHILE { $$ = $1; }
      | DOWHILE puntocoma { $$ = $1; }
-     //| FOR { $$ = $1; }
+     | FOR { $$ = $1; }
      | PRINT puntocoma { $$ = $1; }
      | CALLF puntocoma { $$ = $1; }
      | resbreak SEMICOLON {$$ = new Break(Type.BREAK,this._$.first_line,this._$.first_column)}
      | rescontinue SEMICOLON {$$ = new Continue(Type.CONTINUE,this._$.first_line,this._$.first_column)}
-     | resreturn EXPRT SEMICOLON {$$ = new Return(count.getP(),$2,null,Type.VALOR,this._$.first_line,this._$.first_column);}
-     | resreturn puntocoma {$$ = new Return(count.getP(),null,null,Type.VALOR,this._$.first_line,this._$.first_column);}
-     | error { try{ add_error_E( {error: yytext, type: 'SINTACTICO', line: @1.first_line, column: @1.first_column} ); }catch(e){} }
+     | resreturn EXPRT SEMICOLON {$$ = new Return($2,null,Type.VALOR,this._$.first_line,this._$.first_column);}
+     | resreturn puntocoma {$$ = new Return(null,null,Type.VALOR,this._$.first_line,this._$.first_column);}
+     | error { try{ add_error_E( {error: yytext, type: 'SINTACTICO', line: @1.first_line, column: @1.first_column} ); }catch(e){ console.log(e); } }
 ;
 
 ASSIGNMENT
-    : IDVALOR OPERADOR igual EXPRT { $$ = new Assignment($1,$4,this._$.first_line,this._$.first_column); $$.change_tipe($2);}
+    : IDVALOR OPERADOR igual EXPRT { if($1.length === 1 && $1[0].type === Type.ID){ $1 = $1[0]; } $$ = new Assignment($1,new Arithmetical($1,$4,$2,Type.VALOR,this._$.first_line,this._$.first_column),this._$.first_line,this._$.first_column); $$.change_tipe($2);}
     | id DECINC { $$ = new Unary($1,$2,this._$.first_line,this._$.first_column); }
-    | IDVALOR igual EXPRT { $$ = new Assignment($1,$3,this._$.first_line,this._$.first_column); }
+    | IDVALOR igual EXPRT { /*DEBERIA AQUI*/if($1.length === 1 && $1[0].type === Type.ID){ $1 = $1[0]; } $$ = new Assignment($1,$3,this._$.first_line,this._$.first_column); }
 ;
 
 OPERADOR
-     : suma { $$ = $1; }
-     | resta { $$ = $1; }
-     | potencia { $$ = $1; }
-     | multiplicacion { $$ = $1; }
-     | slash { $$ = $1; }
-     | modulo { $$ = $1; }
+     : suma { $$ = Type.SUMA; }
+     | resta { $$ = Type.RESTA; }
+     | potencia { $$ = Type.POTENCIA; }
+     | multiplicacion { $$ = Type.MULTIPLICACION; }
+     | slash { $$ = Type.DIVISION; }
+     | modulo { $$ = Type.MODULO; }
 ;
 
 ASSIGMENTWITHTYPE
      : IDVALOR CONTENTASWT { $$ = $2; $$.id = $1; }
-     | ASSIGNMENT puntocoma { $$ = $1; }
-     | IDVALORASS puntocoma
+     | ASSIGNMENT  { $$ = $1; }
+     | IDVALORASS { $$ = new Unary($1,".push()",this._$.first_line,this._$.first_column); }
 ;
 
 CONTENTASWT
-     : igual llavea llavec puntocoma{ $$ = new Assignment($1,new Value(null,Type.ARREGLO,Type.VALOR,this._$.first_line,this._$.first_column),this._$.first_line,this._$.first_column); }
-     | igual DECASSTYPE { $$ = new Assignment(null,new Value($2,Type.OBJETO,Type.VALOR,this._$.first_line,this._$.first_column),this._$.first_line,this._$.first_column); }
+     : igual llavea llavec { $$ = new Assignment(undefined,undefined,this._$.first_line,this._$.first_column); $$.change_tipe(Type.ARREGLO);}
+     | igual DECASSTYPE { $$ = new Assignment($2,undefined,this._$.first_line,this._$.first_column); }
 ;
 
 DECASSTYPE
-     : corchetea ASSIGNMENTTYPE   { $$ = $2; }
+     : corchetea ASSIGNMENTTYPE   { $$ = new Value($2,Type.OBJETO,Type.VALOR,this._$.first_line,this._$.first_column); }
 ;
 
 ASSIGNMENTTYPE
@@ -427,7 +395,7 @@ DOWHILE
 
 FOR
      : resfor parenta DEC puntocoma EXPRT puntocoma ASSIG parentc BLOCK { if($3[0] instanceof Declaration){$3.type_var = Type.PRIMITIVO;} $$ = new For($3,$5,$7,$9,this._$.first_line,this._$.first_column);  }
-     | resfor parenta DECLARATION FINON id parentc BLOCK { if($3[0] instanceof Declaration){$3.type_var = Type.PRIMITIVO;} $$ = new For($3,null,$5,$7,this._$.first_line,this._$.first_column); }
+     | resfor parenta DECLARATION FINON EXP parentc BLOCK { if($3[0] instanceof Declaration){$3.type_var = Type.PRIMITIVO;} $$ = new For($3,$4,$5,$7,this._$.first_line,this._$.first_column); }
 ;
 
 ASSIG
@@ -456,7 +424,7 @@ PRINT
 ;
 
 DATAPRINT
-     : EXPRT coma DATAPRINT { $3.push($1); $$ = $3; /*print*/}
+     : EXPRT coma DATAPRINT { $3.unshift($1); $$ = $3; /*print*/}
      | EXPRT { $$ = [$1]; /*print*/}
 ;
 
@@ -509,18 +477,17 @@ EXP2
 
 EXP3
      : number {$$ = new Value(Number($1),Type.ENTERO,Type.VALOR,this._$.first_line,this._$.first_column); }
-     //| number ARREGLO { $$ = $1 +  $2; }
+     | resta IDVALOR { if($2.length === 1 && $2[0].type === Type.ID){ $$ = new Unary($2[0],Type.RESTA,this._$.first_line,this._$.first_column); }else{ $$ = new Unary($1,Type.RESTA,this._$.first_line,this._$.first_column); } }
      | resta number { $$ = new Value(-1*Number($2),Type.ENTERO,Type.VALOR,this._$.first_line,this._$.first_column); }
      | parenta EXPRT parentc { $$ = $2; }
      | cadena {$$ = new Value($1,Type.CADENA,Type.VALOR,this._$.first_line,this._$.first_column);}
-     //| cadena ARREGLO { $$ = $1 + $2; }
      | restrue {$$ = new Value(true,Type.BOOL,Type.VALOR,this._$.first_line,this._$.first_column);}
      | resfalse {$$ = new Value(false,Type.BOOL,Type.VALOR,this._$.first_line,this._$.first_column);}
-     | resnull {$$ = new Value($1,Type.NULL,Type.VALOR,this._$.first_line,this._$.first_column);}
-     | resundefined {$$ = new Value($1,Type.NULL,Type.VALOR,this._$.first_line,this._$.first_column);}
+     | resnull {$$ = new Value(null,Type.NULL,Type.VALOR,this._$.first_line,this._$.first_column);}
+     | resundefined {$$ = new Value(null,Type.NULL,Type.VALOR,this._$.first_line,this._$.first_column);}
      | CALLF { $$ = $1; }
      | IDVALOR { if($1.length === 1 && $1[0].type === Type.ID){ $$ = $1[0]; }else{ $$ = new Value($1,Type.ARREGLO,Type.VALOR,this._$.first_line,this._$.first_column); } }
-     | IDVALOR DECINC{ if($1.length == 1){ $$ = new Unary($1[0],$2,this._$.first_line,this._$.first_column); }else{ $$ = new Unary($1[0],$2,this._$.first_line,this._$.first_column);  }  }
+     | IDVALOR DECINC { if($1.length === 1 && $1[0].type === Type.ID){ $$ = new Unary($1[0],$2,this._$.first_line,this._$.first_column); }else{ $$ = new Unary($1,$2,this._$.first_line,this._$.first_column); } }
 ;
 
 
@@ -540,8 +507,8 @@ ARREGLO
 
 IDVALOR2
      : punto IDVALOR { $$ = $2;  }
-     //| punto respop
-     //| punto reslength
+     | punto respop parenta parentc { $$ = [new Value(".pop()",Type.ID,Type.VALOR,this._$.first_line,this._$.first_column)];  }
+     | punto reslength { $$ = [new Value($2,Type.ID,Type.VALOR,this._$.first_line,this._$.first_column)];  }
      | { $$ = []; }
 ;
 
@@ -574,8 +541,5 @@ IDVALORASS
 
 IDVALOR2ASS
      : punto IDVALORASS { $$ = $2;  }
-     | punto respush parenta EXPRT parentc { $$ = $1 + $2 + $3 + $4 + $5; }
+     | punto respush parenta EXPRT parentc { $$ = [$4]; }
 ;
-
-
-

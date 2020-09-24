@@ -13,29 +13,29 @@ class TernaryOperator {
 
     operate(tab) 
     {
-        var aux = this.value.operate(tab);
-        if (aux.type == Type.BOOL) {
+        let aux = this.value.operate(tab);
+        if (aux.type === Type.BOOL) {
             if (aux.value) {
-                var ret = this.node_left.operate(tab);
-                if (ret == null) {
+                let ret = this.node_left.operate(tab);
+                if (ret === null) {
                     
-                    try{ add_error_E( {error: "El Valor Retorno INVAVALIDO, se esperaba un VALOR.", type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){}
+                    try{ add_error_E( {error: "El Valor Retorno INVAVALIDO, se esperaba un VALOR.", type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){ console.log(e); }
                     //olc2_p1.IDE.txtExec += "Error Semantico, El Valor de Retorno INVALIDO, se esperaba un VALOR. Linea: " + row + " Columna: " + column + "\n";
                     //olc2_p1.IDE.et.putError(new error.Error(error.Error.TypeError.SEMANTICO, "El Valor Retorno INVAVALIDO, se esperaba un VALOR.", row, column));
                 }
                 return ret;
 
             } else {
-                var ret = this.node_right.operate(tab);
-                if (ret == null) {
-                    try{ add_error_E( {error: "El Valor de la columna INVAVALIDO, se esperaba un ENTERO.", type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){}
+                let ret = this.node_right.operate(tab);
+                if (ret === null) {
+                    try{ add_error_E( {error: "El Valor de la columna INVAVALIDO, se esperaba un ENTERO.", type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){ console.log(e); }
                     //olc2_p1.IDE.txtExec += "Error Semantico, El Valor de la columna INVALIDO, se esperaba un ENTERO. Linea: " + row + " Columna: " + column + "\n";
                     //olc2_p1.IDE.et.putError(new error.Error(error.Error.TypeError.SEMANTICO, "El Valor de la columna INVAVALIDO, se esperaba un ENTERO.", row, column));
                 }
                 return ret;
             }
         } else {
-            try{ add_error_E( {error: "No se puede ejecutar la operacion " + aux.type.toString() + ", se esperaba un tipo booleano.", type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){}
+            try{ add_error_E( {error: "No se puede ejecutar la operacion " + aux.type.toString() + ", se esperaba un tipo booleano.", type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){ console.log(e); }
             //olc2_p1.IDE.txtExec += "Error Semantico, No se puede ejecutar la operacion " + aux.type.toString() + ", se esperaba un tipo booleano. Linea: " + row + " Columna: " + column + "\n";
             //olc2_p1.IDE.et.putError(new error.Error(error.Error.TypeError.SEMANTICO, "No se puede ejecutar la operacion " + aux.type.toString() + ", se esperaba un tipo booleano.", row, column));
         }

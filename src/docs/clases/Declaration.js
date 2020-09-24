@@ -1,5 +1,5 @@
 import Symbol from './Symbol';
-import { add_error_E } from './Reports';
+import { add_error_E, add_console } from './Reports';
 import Type from'./Type';
 
 class Declaration {
@@ -15,65 +15,90 @@ class Declaration {
         this.column = _column;
     }
     operate(tab) {
-        var a = tab.getSymbol(this.id);
-        var tmpExp;
-        if(this.value !== undefined)
+        let a = tab.getSymbol(this.id);
+        let tmpExp;
+        if(this.value !== undefined && this.value.type === Type.OBJETO)
+            this.value.type = this.type;
+        if(this.value !== undefined && this.type !== Type.ARREGLO)
+        {
             tmpExp = this.value.operate(tab);
-
-        if (a == null) {
-            if(this.value !== undefined && (tmpExp.type === this.type || this.type === undefined))
+            if(tmpExp === null)
             {
-                if( tmpExp.type === Type.ENTERO || tmpExp.type === Type.BOOL || tmpExp.type === Type.CARACTER)
+                try{ add_console("La variable: " + this.id + ", no se pudo crear revisar reporte de errores" + ", Linea: " + this.row + ", Columna: " + this.column); }catch(e){ console.log(e); }
+                return null;
+            }
+        }
+
+        
+        if (a === null) {
+            if (this.value !== undefined && this.type === Type.ARREGLO)
+            {
+                let arreglo = new Symbol(this.id, [], this.type, this.type_exp, this.type_var, this.type_c,/* this.type_o,*/ this.row,this.column)
+                if(this.value instanceof Array)
+                {
+                    for(let element of this.value){
+                        let tmpExp = element.operate(tab);
+                        if (tmpExp !== null) {
+                            arreglo.value.push(tmpExp);
+                        }
+                    }
+                    tab.addSymbol(arreglo);
+                }
+            }
+            else if(this.value !== undefined && (tmpExp.type === this.type || this.type === undefined))
+            {
+                if( tmpExp.type === Type.ENTERO || tmpExp.type === Type.BOOL || tmpExp.type === Type.CADENA)
                 {
                     tab.addSymbol(new Symbol(this.id, tmpExp.value, tmpExp.type, this.type_exp, this.type_var, this.type_c,/* this.type_o,*/ this.row,this.column));
-                }else if ( this.type === Type.ARREGLO)
-                {
-                    //tab.addSymbol(new Symbol(this.id, [], tmpExp.type, this.type_exp, this.type_var, this.type_c,/* this.type_o,*/ this.row,this.column));
                 }
                 else
                 {
-
-
-
+                    if(tmpExp.type === this.type)
+                    {
+                        tab.addSymbol(new Symbol(this.id, tmpExp.value, this.type, this.type_exp, this.type_var, this.type_c,/* this.type_o,*/ this.row,this.column));
+                        //this.assign_recursive_type(tmpExp.type, tmpExp.value, tab);
+                    }
                 }
-            }
-            else if ( this.type === Type.ARREGLO)
+            }else if ( this.type === Type.ARREGLO)
             {
                 tab.addSymbol(new Symbol(this.id, [], this.type, this.type_exp, this.type_var, this.type_c,/* this.type_o,*/ this.row,this.column));
             }else if (this.value === undefined && this.type === undefined)
             {
                 tab.addSymbol(new Symbol(this.id, undefined, undefined, this.type_exp, this.type_var, this.type_c,/* this.type_o,*/ this.row,this.column));
+            }else if (this.value === undefined && this.type !== undefined)
+            {
+                tab.addSymbol(new Symbol(this.id, undefined, this.type, this.type_exp, this.type_var, this.type_c,/* this.type_o,*/ this.row,this.column));
             }
             else
-                try{ add_error_E( {error: "No se puede asignar un valor tipo: " + tmpExp.type + " a una variable de tipo" + this.type , type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){}
+                try{ add_error_E( {error: "No se puede asignar un valor tipo: " + tmpExp.type + " a una variable de tipo" + this.type , type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){ console.log(e); }
         }else {
-            try{ add_error_E( {error: "La variable ya existe " + this.id + ".", type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){}
+            try{ add_error_E( {error: "La variable ya existe " + this.id + ".", type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){ console.log(e); }
         }
         return null;
     }
 
-    assign_recursive_type(type, value, tab)
+    assign_recursive_type(types, value, tab)
     {
-        var value_return = [];
-        var type = tab.find_type(type);
+        let value_return = [];
+        let type = tab.find_type(types);
         if(type !== null)
         {
-            if(type.atributes.length == value.length)
+            if(type.atributes.length === value.length)
             {
-                for(var at of value)
+                for(let at of value)
                 {
-                    var bol = false;
-                    for(var at2 of type.atributes)
+                    let bol = false;
+                    for(let at2 of type.atributes)
                     {
                         if(at[0] === at2.name)
                         {
                             bol = true;
                             if(tab.find_type(at2.name) === null)
                             {
-                                var temp = at[1].operate(tab);
-                                if(temp.type !== at2.type)
+                                let temp = at[1].operate(tab);
+                                if(temp === null || temp.type !== at2.type)
                                 {
-                                    try{ add_error_E( {error: "El atributo no es del tipo correcto: " + temp.type + "con el del type: " + at2.type, type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){}
+                                    try{ add_error_E( {error: "El atributo no es del tipo correcto: " + temp.type + "con el del type: " + at2.type, type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){ console.log(e); }
                                     return null;
                                 }
                                 value_return.push([at2.name, temp.value]);
@@ -85,17 +110,16 @@ class Declaration {
                     }
                     if(!bol)
                     {
-                        try{ add_error_E( {error: "El atributo no existe: " + at[0] , type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){}
+                        try{ add_error_E( {error: "El atributo no existe: " + at[0] , type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){ console.log(e); }
                         return null;
                     }
                 }
                 return value_return;
             }else
-                try{ add_error_E( {error: "Faltan atributos", type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){}
+                try{ add_error_E( {error: "Faltan atributos", type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){ console.log(e); }
         }else
         {
-            try{ add_error_E( {error: "Tipo " + this.type + " no Valido.", type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){}
-            //this.count.putError(Type.SEMANTICO, "Tipo " + this.type + " no Valido.", this.row, this.column);
+            try{ add_error_E( {error: "Tipo " + this.type + " no Valido.", type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){ console.log(e); }
             return null;
         }
     }

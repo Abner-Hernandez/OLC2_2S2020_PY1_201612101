@@ -1,13 +1,12 @@
 
 %{
-     var local_function = [];
-     var parent_name = [];
-     var name_function = "";
-     var traduction = "";
-     var simbol_table = [];
-     var errores = [];
-     var vars_a = [];
-     var aux_string = "";
+     let  local_function = [];
+     let  parent_name = [];
+     let  name_function = "";
+     let  traduction = "";
+     let  errores = [];
+     let  vars_a = [];
+     let  aux_string = "";
      
      function add_traduction(content)
      {
@@ -108,7 +107,7 @@
 ([a-zA-Z"_"])[a-z0-9A-Z"_""ñ""Ñ"]*                                    return 'id';
 <<EOF>>                 return 'EOF';
 
-.                      { try{ add_error_T( {error: yytext, type: 'LEXICO', line: yylloc.first_line, column: yylloc.first_column} ); }catch(e){} }
+.                      { try{ add_error_T( {error: yytext, type: 'LEXICO', line: yylloc.first_line, column: yylloc.first_column} ); }catch(e){ console.log(e); } }
 /lex
 
 /* Asociación de operadores y precedencia */
@@ -136,7 +135,7 @@ ini
 ;
 
 DEFTYPES
-     :restype id igual corchetea ATTRIB corchetec { $$ = $1 + " " + $2 + " " + $3 + " " + $4 + "\n    " + $5 + "\n" + $6 + "\n"; }
+     :restype id igual corchetea ATTRIB corchetec puntocoma { $$ = $1 + " " + $2 + " " + $3 + " " + $4 + "\n    " + $5 + "\n" + $6 + $7 + "\n"; }
 ;
 
 ATTRIB
@@ -147,12 +146,12 @@ ATTRIB
 INSTRUCTIONSG
 	: INSTRUCTIONG INSTRUCTIONSG { $$ = "\n" +$1 +  $2; /*inst global*/}
 	| INSTRUCTIONG { $$ = $1; /*inst global*/}
-     //| error { try{ errores.push( {error: yytext, type: 'SINTACTICO', line: @1.first_line, column: @1.first_column} ); }catch(e){} }
+     //| error { try{ errores.push( {error: yytext, type: 'SINTACTICO', line: @1.first_line, column: @1.first_column} ); }catch(e){ console.log(e); } }
 ;
 
 INSTRUCTIONG
 	: FUNCTIONG { $$ = $1; }
-     | DECLARATION puntocoma { $$ = $1 + $2;  for(var a of vars_a){ if(a.ambit == undefined) a.ambit = "global"; add_simbol_T(a); } vars_a = []; }
+     | DECLARATION puntocoma { $$ = $1 + $2;  for(let  a of vars_a){ if(a.ambit === undefined) a.ambit = "global"; add_simbol_T(a); } vars_a = []; }
      | ASSIGMENTWITHTYPE { $$ = $1; }
      | DEFTYPES { $$ = $1; }
      | IF { $$ = $1; }
@@ -163,7 +162,7 @@ INSTRUCTIONG
      | PRINT puntocoma { $$ = $1 + $2; }
      | CALLF puntocoma { $$ = $1 + $2; }
      | GRAFICAR puntocoma { $$ = $1 + $2 ; }
-     | error { try{ add_error_T( {error: yytext, type: 'SINTACTICO', line: @1.first_line, column: @1.first_column} ); }catch(e){} }
+     | error { try{ add_error_T( {error: yytext, type: 'SINTACTICO', line: @1.first_line, column: @1.first_column} ); }catch(e){ console.log(e); } }
 ;
 
 FUNCTIONG
@@ -256,7 +255,7 @@ TYPEVAR
 ;
 
 DECLARATION
-     : TYPEVAR LISTID { $$ = $1 + " " + aux_string; aux_string = "";  /* for(var a of vars_a){a.type = $1;} declaracion*/}
+     : TYPEVAR LISTID { $$ = $1 + " " + aux_string; aux_string = "";  /* for(let  a of vars_a){a.type = $1;} declaracion*/}
 ;
 
 LISTID
@@ -292,6 +291,7 @@ LISTID
 ASSVALUE
      : igual EXPRT { $$ = $1 + " " + $2; }
      | igual llavea llavec { $$ = $1 + " " + $2 + $3; }
+     | igual llavea DATAPRINT llavec { $$ = $1 + " " + $2 + $3 + $4; }
      | igual DECASSTYPE { $$ = $1 + " " + $2; }
      | { $$ = ""; }
 ;
@@ -325,7 +325,7 @@ INSTRUCTIONPRIM
 */
 
 INSTRUCTION
-     : DECLARATION puntocoma { $$ = $1 + $2; for(var a of vars_a){ if(a.ambit == undefined) a.ambit = "local"; add_simbol_T(a); } vars_a = []; }
+     : DECLARATION puntocoma { $$ = $1 + $2; for(let  a of vars_a){ if(a.ambit === undefined) a.ambit = "local"; add_simbol_T(a); } vars_a = []; }
      | ASSIGMENTWITHTYPE { $$ = $1; }
      | IF { $$ = $1; }
      | SWITCH { $$ = $1; }
@@ -339,7 +339,7 @@ INSTRUCTION
      | resreturn EXPRT puntocoma { $$ = $1 + " " + $2 + $3 ; }
      | resreturn puntocoma { $$ = $1 + $2 ; }
      | GRAFICAR puntocoma { $$ = $1 + $2 ; }
-     | error { try{ add_error_T( {error: yytext, type: 'SINTACTICO', line: @1.first_line, column: @1.first_column} ); }catch(e){} }
+     | error { try{ add_error_T( {error: yytext, type: 'SINTACTICO', line: @1.first_line, column: @1.first_column} ); }catch(e){ console.log(e); } }
 ;
 //FALTA THROW
 
@@ -359,14 +359,14 @@ OPERADOR
 ;
 
 ASSIGMENTWITHTYPE
-     : IDVALOR CONTENTASWT { $$ = $1 + $2; }
+     : IDVALOR CONTENTASWT puntocoma{ $$ = $1 + $2 + $3; }
      | ASSIGNMENT puntocoma { $$ = $1 + $2; }
      | IDVALORASS puntocoma { $$ = $1 + $2; }
      //| TERNARIO puntocoma{ $$ = $1 + $2;/*ternario*/}
 ;
 
 CONTENTASWT
-     : igual llavea llavec puntocoma{ $$ = $1 + " " + $2 + $3 + $4; }
+     : igual llavea llavec { $$ = $1 + " " + $2 + $3; }
      | igual DECASSTYPE { $$ = $1 + " " + $2; }
 ;
 

@@ -44,9 +44,9 @@ class Value {
                 case Type.BOOL:
                     return new Value(this.value, this.type, this.type_exp, this.row, this.column);
                 case Type.NULL:
-                    return new Value('null', Type.NULL, Type.VALOR, this.row, this.column);
+                    return new Value(undefined, undefined, Type.VALOR, this.row, this.column);
                 case Type.CARACTER:
-                    var ret = this.value.replace(/'/g,'');
+                    let ret = this.value.replace(/'/g,'');
                     
                     if(String(ret) === "\\n"){
                         return new Value(10, Type.CARACTER, Type.VALOR, this.row, this.column);
@@ -56,54 +56,63 @@ class Value {
                         return new Value(9, Type.CARACTER, Type.VALOR, this.row, this.column);
                     }
                     return new Value(ret.charCodeAt(0), Type.CARACTER, Type.VALOR, this.row, this.column);
+                case Type.CADENA:
+                    this.valuevalue = this.value.toString().replace("\\n", "\n");
+                    this.value = this.value.toString().replace("\\t", "\t");
+                    this.value = this.value.toString().replace("\\r", "\r");
+                    if (this.value.toString().startsWith("\"")) {
+                        this.value = this.value.toString().substring(1, this.value.toString().length() - 1);
+                    }
+                    this.value = this.value.toString().replace("\\\"", "\"");
+                    return new Value(this.value.toString(), Type.CADENA, this.type_exp, this.row, this.column);
                 case Type.ID:
-                    var a = tab.exists(this.value+"");
+                    let a = tab.exists(this.value+"");
                     if (a) {
-                        var r = tab.getSymbol(this.value+"");
+                        let r = tab.getSymbol(this.value+"");
                         return new Value(r.value, r.type, r.type_exp, this.row, this.column);
                     } else {
-                        try{ add_error_E( {error: "La variable: " + this.value.toString() + "no a sido encontrada", type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){}
+                        try{ add_error_E( {error: "La variable: " + this.value.toString() + "no a sido encontrada", type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){ console.log(e); }
                         //olc2_p1.IDE.et.putError(new error.Error(error.Error.TypeError.SEMANTICO, "Variable " + value.toString() + " no encontrada.", row, column));
                         return null;
                     }
                 case Type.ARREGLO:
-                    var i = 0;
-                    var aux_return = null;
+                    let i = 0;
+                    let aux_return = null;
                     while(i < this.value.length)
                     {
                         if (i === 0)
                         {
-                            var a = tab.exists(this.value[i].value+"");
+                            let a = tab.exists(this.value[i].value+"");
                             if (a) {
-                                var r = tab.getSymbol(this.value[i].value+"");
+                                let r = tab.getSymbol(this.value[i].value+"");
                                 if(r.type === Type.ARREGLO)
                                 {
-                                    var j = 0;
+                                    let j = 0;
                                     try
                                     {
                                         aux_return = r.value[this.value[i].positions[j].value];
-                                    }catch(error){try{ add_error_E( {error: "La variable no es un arreglo o no existe la posicion", type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){} return new Value(null, Type.ERROR, Type.ERROR, this.row, this.column);}
+                                    }catch(e){ console.log(e); try{ add_error_E( {error: "La variable no es un arreglo o no existe la posicion", type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){ console.log(e); } return null;}
                                     j++;
                                     while(j < this.value[i].positions.length)
                                     {
                                         try
                                         {
-                                            aux_return = aux_return[this.value[i].positions[j].value];
-                                        }catch(error){}
+                                            aux_return = aux_return.value[this.value[i].positions[j].value];
+                                        }catch(e){ console.log(e); }
                                         j++;
                                     }
                                 }else if(r.type === Type.ID)
                                     aux_return = r;
                             } else {
-                                try{ add_error_E( {error: "La variable: " + this.value.toString() + "no a sido encontrada", type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){}
-                                return new Value(null, Type.ERROR, Type.ERROR, this.row, this.column);
+                                try{ add_error_E( {error: "La variable: " + this.value.toString() + "no a sido encontrada", type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){ console.log(e); }
+                                return null;
                             }
                         }else
                         {
                             try
                             {
-                                var find = false;
-                                for(var dat of aux_return)
+                                let find = false;
+                                for(let dat of aux_return)
                                 {
                                     if(this.value[i].value === dat[0])
                                     {
@@ -114,42 +123,143 @@ class Value {
                                 }
                                 if(!find)
                                 {
-                                    try{ add_error_E( {error: "El atributo no existe", type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){}
-                                    return new Value(null, Type.ERROR, Type.ERROR, this.row, this.column);
+                                    try{ add_error_E( {error: "El atributo no existe", type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){ console.log(e); }
+                                    return null;
                                 }
 
-                                if(this.value[i].type == Type.ARREGLO)
+                                if(this.value[i].type === Type.ARREGLO)
                                 {
                                     aux_return = aux_return.value
-                                    var j = 0;
+                                    let j = 0;
                                     try
                                     {
-                                        aux_return = r.value[this.value[i].positions[j].value];
-                                    }catch(error){try{ add_error_E( {error: "La variable no es un arreglo o no existe la posicion", type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){} return new Value(null, Type.ERROR, Type.ERROR, this.row, this.column);}
+                                        aux_return = aux_return.value[this.value[i].positions[j].value];
+                                    }catch(e){ console.log(e); try{ add_error_E( {error: "La variable no es un arreglo o no existe la posicion", type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){ console.log(e); } return null;}
                                     j++;
                                     while(j < this.value[i].positions.length)
                                     {
                                         try
                                         {
                                             aux_return = aux_return[this.value[i].positions[j].value];
-                                        }catch(error){}
+                                        }catch(e){ console.log(e); try{ add_error_E( {error: "La variable no es un arreglo o no existe la posicion", type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){ console.log(e); } return null;}
                                         j++;
                                     }
                                 }
-                            }catch(error){try{ add_error_E( {error: "La variable no es un arreglo o no existe la posicion", type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){} return new Value(null, Type.ERROR, Type.ERROR, this.row, this.column);}
+                            }catch(e){ console.log(e); try{ add_error_E( {error: "La variable no es un arreglo o no existe la posicion", type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){ console.log(e); } return null;}
 
+                        }
+                        if(i < this.value.length - 1 && this.value[i+1].value === ".pop()")
+                        {
+                            if(aux_return.type === Type.ARREGLO && aux_return.value.length > 0)
+                            {
+                                let aux =  aux_return.value.pop();
+                                if(aux instanceof Value)
+                                {
+                                    return aux;
+                                }
+                            }else
+                            {
+                                try{ add_error_E( {error: "La variable no es un arreglo o no tiene elementos", type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){ console.log(e); }
+                                return null;
+                            }
+                        }else if(i < this.value.length - 1 && this.value[i+1].value === "length")
+                        {
+                            if(aux_return.type === Type.ARREGLO)
+                            {
+                                return new Value(aux_return.value.length, Type.ENTERO, Type.VALOR, this.row, this.column);
+                            }else
+                            {
+                                try{ add_error_E( {error: "La variable no es un arreglo no se puede devolver el tamaño", type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){ console.log(e); }
+                                return null;
+                            }
                         }
                         i = i + 1;
                     }
                     return new Value(aux_return.value, aux_return.type, aux_return.type_exp, this.row, this.column);
                 default:
-                    try{ add_error_E( {error: "Tipo " + this.type + " no Valido.", type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){}
-                        //this.count.putError(Type.SEMANTICO, "Tipo " + this.type + " no Valido.", this.row, this.column);
-                    return new Value(null, Type.ERROR, Type.ERROR, this.row, this.column);
-                    
+                    return this.assign_recursive_type(this.type, this.value, tab);
             }
         } else {
 
+        }
+    }
+
+    assign_recursive_type(types, value, tab)
+    {
+        let value_return = [];
+        let type = tab.find_type(types);
+        if(type !== null)
+        {
+            if(value === null)
+            {
+                return new Value(undefined, undefined, Type.VALOR, this.row, this.column);;
+            }
+            if(type.atributes.length === value.length)
+            {
+                for(let at of value)
+                {
+                    let bol = false;
+                    for(let at2 of type.atributes)
+                    {
+                        if(at[0] === at2.name)
+                        {
+                            bol = true;
+                            if(tab.find_type(at2.type) === null)
+                            {
+                                let temp = at[1].operate(tab);
+                                if(temp === null)
+                                    return null;
+                                if(temp.type !== at2.type)
+                                {
+                                    try{ add_error_E( {error: "El atributo no es del tipo correcto: " + temp.type + "con el del type: " + at2.type, type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){ console.log(e); }
+                                    return null;
+                                }
+                                value_return.push([at2.name, temp]);
+                                break;
+                            }else
+                            {
+                                if(at[1].value === null)
+                                {
+                                    value_return.push([at2.name, new Value(undefined, undefined, Type.VALOR, this.row, this.column)]);
+                                    break;
+                                }else if(at[1].value instanceof Array)
+                                    return this.assign_recursive_type(at2.type, at[1], tab)
+                                else
+                                {
+                                    let a = tab.exists(at[1].value+"");
+                                    if (a) {
+                                        let r = tab.getSymbol(at[1].value+"");
+                                        if(r.type === at2.type)
+                                        {
+                                            value_return.push([at2.name, r]);
+                                            break;
+                                        }else 
+                                        {
+                                            try{ add_error_E( {error: "El tipo de la variable a asignar no es el correcto", type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){ console.log(e); }
+                                            return null;
+                                        }
+                                    } else {
+                                        try{ add_error_E( {error: "La variable: " + this.value.toString() + "no a sido encontrada", type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){ console.log(e); }
+                                        return null;
+                                    }                                    
+                                }
+                            }
+                        }
+                    }
+                    if(!bol)
+                    {
+                        try{ add_error_E( {error: "El atributo no existe: " + at[0] , type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){ console.log(e); }
+                        return null;
+                    }
+                }
+                return new Value(value_return, type.name, Type.VALOR, this.row, this.column);
+            }else
+                try{ add_error_E( {error: "Faltan atributos", type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){ console.log(e); }
+                return null;
+        }else
+        {
+            try{ add_error_E( {error: "Tipo " + this.type + " no Valido.", type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){ console.log(e); }
+            return null;
         }
     }
 

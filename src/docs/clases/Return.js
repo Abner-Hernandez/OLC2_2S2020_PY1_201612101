@@ -12,9 +12,9 @@ class Return {
     }
 
     operate(tab) {
-        if (this.value != null) {
-            var ret = this.value.operate(tab);
-            if (ret != null) {
+        if (this.value !== null) {
+            let ret = this.value.operate(tab);
+            if (ret !== null) {
                 ret.used = false;
                 return ret;
             }

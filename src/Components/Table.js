@@ -14,7 +14,7 @@ class Table extends Component{
     }
 
    addRow(data){
-        var {rows, rowIndex} = this.state
+        var {rows} = this.state
         rows.push(data);
         this.setState({rows: rows})
     }

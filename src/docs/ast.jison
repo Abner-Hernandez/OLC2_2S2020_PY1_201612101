@@ -1,21 +1,20 @@
 
 %{
-     var id = 0;
-     var root;
-     var aux_node = [];
+     let id = 0;
+     let root;
 
      function createAST(root) {
-          var ret = "digraph G {node[shape=rectangle];\n";
+          let ret = "digraph G {node[shape=rectangle];\n";
           ret += loopAST(root);
           ret += "\n}";
           return ret;
      }
 
      function loopAST(root) {
-          var ret = "";
+          let ret = "";
           if (root != null) {
                //console.log(root.children.length);
-               for (var i = 0; i < root.children.length; i++) {
+               for (let i = 0; i < root.children.length; i++) {
 
                     if (root.children.length > 0) {
                          try
@@ -25,7 +24,7 @@
                          root.children[i].value = root.children[i].value.replace(/\\/g, "#");
                          ret += "\"" + root.id + ". " + root.value + "\"->\"" + root.children[i].id + ". " + root.children[i].value + "\"" + "\n";
                          ret += loopAST(root.children[i]);
-                         }catch(e){console.log(e)}
+                         }catch(e){ console.log(e); console.log(e)}
                     }
                }
           }
@@ -162,12 +161,12 @@ export
 %% /* Definición de la gramática */
 
 ini
-	: INSTRUCTIONSG EOF { root = new Node(id++,"INSTRUCTIONSG"); root.children.push($1); var arbol = createAST(root); return arbol;}
+	: INSTRUCTIONSG EOF { root = new Node(id++,"INSTRUCTIONSG"); root.children.push($1); let arbol = createAST(root); return arbol;}
      | EOF
 ;
 
 DEFTYPES
-     :restype id igual corchetea ATTRIB corchetec {$$ = new Node(id++,"DEFTYPES"); $$.children.push(new Node(id++,$1)); $$.children.push(new Node(id++,$2)); $$.children.push(new Node(id++,$3)); $$.children.push(new Node(id++,$4)); $$.children.push($5); $$.children.push(new Node(id++,$6));}
+     :restype id igual corchetea ATTRIB corchetec puntocoma {$$ = new Node(id++,"DEFTYPES"); $$.children.push(new Node(id++,$1)); $$.children.push(new Node(id++,$2)); $$.children.push(new Node(id++,$3)); $$.children.push(new Node(id++,$4)); $$.children.push($5); $$.children.push(new Node(id++,$7)); }
 ;
 
 ATTRIB
@@ -192,6 +191,7 @@ INSTRUCTIONG
      | FOR {$$ = new Node(id++,"INSTRUCTIONG");$$.children.push($1);}
      | PRINT puntocoma {$$ = new Node(id++,"INSTRUCTIONG");$$.children.push($1); $$.children.push(new Node(id++,$2));}
      | CALLF puntocoma {$$ = new Node(id++,"INSTRUCTIONG");$$.children.push($1); $$.children.push(new Node(id++,$2));}
+     | GRAFICAR {$$ = new Node(id++,"INSTRUCTION");$$.children.push($1);}
      | error { /*this is error*/ console.log($1); }
 ;
 
@@ -270,11 +270,11 @@ LISTAPARAMETROSPRIM
 ;
 
 LSPBETHA
-     : id dospuntos TYPES { var aux = new Node(id++,"LSPBETHA"); aux.children.push(new Node(id++,$1)); aux.children.push(new Node(id++,$2)); aux.children.push($3); $$ = aux; }
+     : id dospuntos TYPES { $$ = new Node(id++,"LSPBETHA"); $$.children.push(new Node(id++,$1)); $$.children.push(new Node(id++,$2)); $$.children.push($3); }
 ;
 
 LSALPHA
-     : coma id dospuntos TYPES { var aux = new Node(id++,"LSALPHA");  aux.children.push(new Node(id++,$1));  aux.children.push(new Node(id++,$2)); aux.children.push(new Node(id++,$3)); aux.children.push($4); $$ = aux; }
+     : coma id dospuntos TYPES { $$ = new Node(id++,"LSALPHA");  $$.children.push(new Node(id++,$1));  $$.children.push(new Node(id++,$2)); $$.children.push(new Node(id++,$3)); $$.children.push($4); }
 ;
 
 TYPEVAR
@@ -317,6 +317,7 @@ LISALPHA
 ASSVALUE
      : igual EXPRT {$$ = new Node(id++,"ASSVALUE");$$.children.push(new Node(id++,$1));$$.children.push($2);}
      | igual llavea llavec {$$ = new Node(id++,"ASSVALUE"); $$.children.push(new Node(id++,$1)); $$.children.push(new Node(id++,$2)); $$.children.push(new Node(id++,$3));}
+     | igual llavea DATAPRINT llavec {$$ = new Node(id++,"ASSVALUE"); $$.children.push(new Node(id++,$1)); $$.children.push(new Node(id++,$2)); $$.children.push($3); $$.children.push(new Node(id++,$4));}
      | igual DECASSTYPE {$$ = new Node(id++,"CONTENTASWT"); $$.children.push(new Node(id++,$1)); $$.children.push($2);}
      | {$$ = new Node(id++,"ASSVALUE"); $$.children.push(new Node(id++,"epsilon"));}
 ;
@@ -363,6 +364,7 @@ INSTRUCTION
      | rescontinue puntocoma {$$ = new Node(id++,"INSTRUCTION"); $$.children.push(new Node(id++,$1)); $$.children.push(new Node(id++,$2));}
      | resreturn EXPRT puntocoma {$$ = new Node(id++,"INSTRUCTION"); $$.children.push(new Node(id++,$1)); $$.children.push($2); $$.children.push(new Node(id++,$3));}
      | resreturn puntocoma {$$ = new Node(id++,"INSTRUCTION"); $$.children.push(new Node(id++,$1)); $$.children.push(new Node(id++,$2));}
+     | GRAFICAR {$$ = new Node(id++,"INSTRUCTION");$$.children.push($1);}
      | error { /*this is error*/ console.log($1); }
 ;
 //FALTA THROW
@@ -383,13 +385,13 @@ OPERADOR
 ;
 
 ASSIGMENTWITHTYPE
-     : IDVALOR CONTENTASWT {$$ = new Node(id++,"ASSIGMENTWITHTYPE"); $$.children.push($1); $$.children.push($2);}
+     : IDVALOR CONTENTASWT puntocoma {$$ = new Node(id++,"ASSIGMENTWITHTYPE"); $$.children.push($1); $$.children.push($2); $$.children.push(new Node(id++,$3));}
      | ASSIGNMENT puntocoma { $$ = $1; $$.children.push(new Node(id++,$2));}
-     | IDVALOR2ASS puntocoma { $$ = $1; $$.children.push(new Node(id++,$2));}
+     | IDVALORASS puntocoma { $$ = $1; $$.children.push(new Node(id++,$2));}
 ;
 
 CONTENTASWT
-     : igual llavea llavec puntocoma {$$ = new Node(id++,"CONTENTASWT"); $$.children.push(new Node(id++,$1)); $$.children.push(new Node(id++,$2)); $$.children.push(new Node(id++,$3)); $$.children.push(new Node(id++,$4));}
+     : igual llavea llavec {$$ = new Node(id++,"CONTENTASWT"); $$.children.push(new Node(id++,$1)); $$.children.push(new Node(id++,$2)); $$.children.push(new Node(id++,$3));}
      | igual DECASSTYPE {$$ = new Node(id++,"CONTENTASWT"); $$.children.push(new Node(id++,$1)); $$.children.push($2);}
 ;
 
@@ -601,7 +603,7 @@ IDVALORASS
 
 IDVALOR2ASS
      : punto IDVALORASS {$$ = new Node(id++,"IDVALOR2ASS");$$.children.push(new Node(id++,$1)); $$.children.push($2);}
-     | punto respush parenta EXPRT parentc {$$ = new Node(id++,"IDVALOR2ASS"); $$.children.push(new Node(id++,$1)); $$.children.push(new Node(id++,$2)); $$.children.push(new Node(id++,$3)); $$.children.push(new Node(id++,$4)); $$.children.push(new Node(id++,$5));}
+     | punto respush parenta EXPRT parentc {$$ = new Node(id++,"IDVALOR2ASS"); $$.children.push(new Node(id++,$1)); $$.children.push(new Node(id++,$2)); $$.children.push(new Node(id++,$3)); $$.children.push($4); $$.children.push(new Node(id++,$5));}
 ;
 
 GRAFICAR

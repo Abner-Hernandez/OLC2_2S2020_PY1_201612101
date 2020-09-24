@@ -34,33 +34,40 @@ class App extends Component {
     try{
       var ast_trans = ast.parse(this.text1);
       this.ast = ast_trans;
-    }catch(error){console.log("error ast traduccion")}
+    }catch(e){ console.log(e); console.log("error ast traduccion")}
     
-    //try{
+    try{
       var data = grammar.parse(this.text1);
+      this.text2 = data;
       this.child2.current.modify_text(data);
       this.child3.current.removeRow();
       this.child4.current.removeRow();
-      var a = JSON.parse(localStorage.getItem('errores_T'));
       this.child3.current.agregar_datos(JSON.parse(localStorage.getItem('errores_T')));
       this.child4.current.agregar_datos(JSON.parse(localStorage.getItem('simbtable_T')));
-    //}catch(error){}
+    }catch(e){ console.log(e); }
 
   }
 
   ejecutar_input = (e) => {
     var arr = [];
     localStorage.setItem('errores_E', JSON.stringify(arr));
+    localStorage.setItem('simbtable_E', JSON.stringify(arr));
+    localStorage.setItem('console', "");
 
     try{
       var ast_trans = ast.parse(this.text2);
       this.ast = ast_trans;
-    }catch(error){}
+    }catch(e){ console.log(e); console.log("error ast ejecucion"); }
 
 
     try{
       interprete.parse(this.text2);
-    }catch(error){}
+      this.child3.current.agregar_datos(JSON.parse(localStorage.getItem('errores_E')));
+      this.child4.current.agregar_datos(JSON.parse(localStorage.getItem('simbtable_E')));
+      this.setState({
+        value: localStorage.getItem('console'),
+      });
+    }catch(e){ console.log(e); }
     
 
   }
@@ -136,7 +143,7 @@ class App extends Component {
           <div id="myTabContent" className="tab-content">
             <div className="tab-pane fade active show" id="console">
               <div className="card-body">
-                <textarea className="form-control" rows="8" value={this.state.value} disabled={true} />
+                <textarea className="form-control" rows="8" value={this.state.value} disabled={true}/>
               </div>
             </div>
             <div className="tab-pane fade" id="errores">

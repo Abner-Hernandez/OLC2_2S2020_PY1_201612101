@@ -6,7 +6,7 @@ class Function {
         this.type_exp = _type_exp;
         //this.type_o = _type_o;
         this.id = _id;
-        if (_param == null) {
+        if (_param === null) {
             this.param = []
         } else {
             this.param = _param;

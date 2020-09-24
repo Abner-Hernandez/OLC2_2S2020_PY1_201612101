@@ -3,110 +3,230 @@ import SymbolTable from'./SymbolTable';
 import Assignment from'./Assignment';
 import Value from'./Value';
 import { add_error_E } from './Reports';
+import Declaration from './Declaration';
 
 class For{
-    constructor(_decla, _exp,_assig, _body, _row, _col) {
-        this.declaration = _decla;
+    constructor(_declaration, _exp, _assignment, _body, _row, _col) {
+        this.declaration = _declaration;
         this.exp = _exp;
-        this.assignment = _assig
+        this.assignment = _assignment;
         this.body = _body;
         this.row = _row;
         this.column = _col;
+        this.type_exp = Type.SENTENCIA;
     }
 
     operate(tab) {
-        var e = this.exp.operate(tab);
-        if (e != null) {
-            var s = new SymbolTable(tab);
-            s.tsuper = null;
-            if (e.type_exp == Type.VALOR) {
-                var a = new Assignment(this.id, this.exp, this.row, this.column);
-                a.execute(s);
-                s.tsuper = tab;
-                if (a != null) {
-                    for (var i = 0; i < this.body.size(); i++) {
-                        if (this.body.get(i).type_exp == Type.RETURN) {
-                            var reE = this.body.get(i).operate(s);
-                            if (reE != null) {
-                                return new Value(reE.value, reE.type, reE.type_exp, reE.row, reE.column);
-                            } else {
-                                var ret = [];
-                                ret.add(new Value("null", Type.CADENA, Type.VALOR, this.row, this.column));
-                                return new Value(ret, Type.CADENA, Type.VECTOR, this.row, this.column);
-                            }
+        let s = new SymbolTable(tab);
+        let a;
+        let assing = false;
+        if(this.declaration instanceof Array && this.declaration.length === 1)
+        {
+            this.declaration = this.declaration[0];
+            if(this.declaration instanceof Declaration)
+            {
+                this.declaration.operate(s);
+                a = s.getSymbol(this.declaration.id);
+            }else if (this.declaration instanceof Assignment)
+            {
+                this.declaration.operate(tab)
+                a = tab.getSymbol(this.declaration.id);
+                assing = true;
+            }
 
-                        }
-                        this.body.get(i).used = true;
-                        var eT = this.body.get(i).operate(s);
-                        if (eT != null && eT.type_exp == Type.VALOR) {
-                            return eT;
-                        } else if (eT != null && eT.type_exp == Type.BREAK) {
+        }else{
+            try{ add_error_E( {error: "Sentencia for no soporta multiples declaraciones o asignaciones", type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){ console.log(e); }
+            return null;
+        }
+
+        if (a === null) 
+        {
+            try{ add_error_E( {error: "Problema al declarar la variable For", type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){ console.log(e); }
+            return null;
+        }else
+        {
+            if(this.exp === "in" || this.exp === "of")
+            {
+                let e = this.exp.operate(tab);
+                if (e != null) {
+                    if (e.type_exp === Type.VALOR) {
+                        let a = new Assignment(this.declaration.id, this.exp, this.row, this.column);
+                        a.operate(s);
+                        if (a != null) {
+                            for (let i = 0; i < this.body.length; i++) {
+                                if (this.body[i].type_exp === Type.RETURN) {
+                                    let reE =  this.body[i].operate(s);
+                                    if (reE != null) {
+                                        return new Value(reE.value, reE.type, reE.type_exp, reE.row, reE.column);
+                                    } else {
+                                        let ret = [];
+                                        ret.push(new Value("null", Type.CADENA, Type.VALOR, this.row, this.column));
+                                        let r = new Value(ret, Type.CADENA, Type.VECTOR, this.row, this.column);
+                                        r.used = false;
+                                        return r;
+                                    }
+                                }
+                                this.body[i].used = true;
+                                let eT = this.body[i].operate(s);
+                                if (eT != null && eT.type_exp === Type.VALOR) {
+                                    return eT;
+                                } else if (eT != null && eT.type_exp === Type.BREAK) {
+                                    return null;
+                                } else if (eT != null && eT.type_exp === Type.CONTINUE) {
+                                    break;
+                                }
+                            }
+                        } else {
+                            try{ add_error_E( {error:  "ASIGNACION Invalida para " + this.id + ".", type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){ console.log(e); }
                             return null;
-                        } else if (eT != null && eT.type_exp == Type.CONTINUE) {
-                            break;
                         }
+        
+                    } else  {
+                        let t = [];
+                        if (e.type_exp === Type.ARREGLO) {
+                            if (e.value.length > 0) {
+                                t = e.value;
+                            }else
+                            {
+                                try{ add_error_E( {error:  "El array no tiene elementos", type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){ console.log(e); }
+                                return null;
+                            }
+                        }
+                        if(this.exp === "in")
+                        {
+                            for (let tp in t) {
+                                s = new SymbolTable(tab);
+                                if(!assing)
+                                    s.symbols.push(a);
+                                let a = new Assignment(a.id, tp, this.row, this.column);
+                                a.operate(s);
+                                s.tsuper = tab;
+                                if (a != null) {
+                                    for (let i = 0; i < this.body.length; i++) {
+                                        if (this.body[i].type_exp === Type.RETURN) {
+                                            let reE = this.body[i].operate(s);
+                                            if (reE != null) {
+                                                return new Value(reE.value, reE.type, reE.type_exp, reE.row, reE.column);
+                                            } else {
+                                                let ret = [];
+                                                ret.push(new Value("null", Type.CADENA, Type.VALOR, this.row, this.column));
+                                                let r = new Value(ret, Type.CADENA, Type.VECTOR, this.row, this.column);
+                                                r.used = false;
+                                                return r;
+                                            }
+            
+                                        }
+                                        this.body[i].used = true;
+                                        let eT = this.body[i].operate(s);
+                                        if (eT != null && eT.type_exp === Type.VALOR) {
+                                            return eT;
+                                        } else if (eT != null && eT.type_exp === Type.BREAK) {
+                                            return null;
+                                        } else if (eT != null && eT.type_exp === Type.CONTINUE) {
+                                            break;
+                                        }
+                                    }
+                                } else {
+                                    try{ add_error_E( {error:  "Hubo un error al realizar la asignacion de la variable " + this.id + ".", type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){ console.log(e); }
+                                }
+                            }
+                        }
+                        else if(this.exp === "in")
+                        {
+                            for (let tp of t) {
+                                s = new SymbolTable(tab);
+                                if(!assing)
+                                    s.symbols.push(a);
+                                let a = new Assignment(a.id, tp, this.row, this.column);
+                                a.operate(s);
+                                s.tsuper = tab;
+                                if (a != null) {
+                                    for (let i = 0; i < this.body.length; i++) {
+                                        if (this.body[i].type_exp === Type.RETURN) {
+                                            let reE = this.body[i].operate(s);
+                                            if (reE != null) {
+                                                return new Value(reE.value, reE.type, reE.type_exp, reE.row, reE.column);
+                                            } else {
+                                                let ret = [];
+                                                ret.push(new Value("null", Type.CADENA, Type.VALOR, this.row, this.column));
+                                                let r = new Value(ret, Type.CADENA, Type.VECTOR, this.row, this.column);
+                                                r.used = false;
+                                                return r;
+                                            }
+            
+                                        }
+                                        this.body[i].used = true;
+                                        let eT = this.body[i].operate(s);
+                                        if (eT != null && eT.type_exp === Type.VALOR) {
+                                            return eT;
+                                        } else if (eT != null && eT.type_exp === Type.BREAK) {
+                                            return null;
+                                        } else if (eT != null && eT.type_exp === Type.CONTINUE) {
+                                            break;
+                                        }
+                                    }
+                                } else {
+                                    try{ add_error_E( {error:  "Hubo un error al realizar la asignacion de la variable " + this.id + ".", type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){ console.log(e); }
+                                }
+                            }
+                        }
+
                     }
                 } else {
-                    try{ add_error_E( {error: "ASIGNACION Invalida para " + this.id + ".", type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){}
-                    //olc2_p1.IDE.txtExec += "Error Semantico, ASIGNACION Invalida para: " + id + ". Linea: " + row + " Columna: " + column + "\n";
-                    //olc2_p1.IDE.et.putError(new error.Error(error.Error.TypeError.SEMANTICO, "ASIGNACION Invalida para " + id + ".", row, column));
-                    return null;
+                    try{ add_error_E( {error: "Expresion No Valida para utilizar, se esperaba ID, VECTOR, MATRIZ, LISTA o VECTOR.", type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){ console.log(e); }
                 }
-
-            } 
-            /*
-            else  {
-                var t = null;
-                if (e.type_exp == Type.MATRIZ) {
-                    if (e.value == null) {
-                        olc2_p1.IDE.txtExec += "Error Semantico, El Tipo para la Matriz es Invalido. Linea: " + row + " Columna: " + column + "\n";
-                        olc2_p1.IDE.et.putError(new error.Error(error.Error.TypeError.SEMANTICO, "El Tipo para La Matriz es Invalido.", row, column));
+            }
+            else
+            {
+                while(true)
+                {
+                    let s = new SymbolTable(tab);
+                    if(!assing)
+                        s.symbols.push(a);
+                    let rr = this.exp.operate(s);
+                    if (rr === null) {
+                        //error
+                        try{ add_error_E( {error: "No se puede ejecutar la instruccion for, se necesita una condicion logica o relacional.", type: 'SINTACTICO', line: this.row, column: this.column} ); }catch(e){ console.log(e); }
+                        //count.putError(Type.SINTACTICO, "No se puede ejecutar la instruccion If, se necesita una condicion logica o relacional.", this.lif[j].row, this.lif[j].column);
                         return null;
                     }
-                    t = ((Matrix) e.value).this.body;
-                } else {
-                    t = ((LinkedList<Expression>) e.value);
-                }
-                Assignment a = null;
-                boolean continueB = false;
-                for (Expression tp : t) {
-                    a = new Assignment(id, tp, row, column);
-                    a.executeFor(s);
-                    s.tsuper = tab;
-                    if (a != null) {
-                        for (int i = 0; i < this.body.size(); i++) {
-                            if (this.body.get(i).type_exp == Type.RETURN) {
-                                Expression reE = ((Return) this.body.get(i)).execute(s);
+                    if (rr.type !== Type.BOOL) {
+                        try{ add_error_E( {error: "No se puede ejecutar la operacion " + rr.type + ", se necesita una condicion logica o relacional.", type: 'SINTACTICO', line: this.row, column: this.column} ); }catch(e){ console.log(e); }
+                        //count.putError(Type.SINTACTICO, "No se puede ejecutar la operacion " + r.type + ", se necesita una condicion logica o relacional.", this.lif[j].row, this.lif[j].column);
+                        return null
+                    }
+                    if (rr.value === true) {
+                        for (let i = 0; i < this.body.length; i++) {
+                            if (this.body[i].type_exp === Type.RETURN) {
+                                let reE = this.body[i].operate(s);
                                 if (reE != null) {
                                     return new Value(reE.value, reE.type, reE.type_exp, reE.row, reE.column);
                                 } else {
-                                    LinkedList<Object> ret = new LinkedList<>();
-                                    ret.add(new Value("null", Type.CADENA, Type.VALOR, row, column));
-                                    return new Value(ret, Type.CADENA, Type.VECTOR, row, column);
+                                    let ret = [];
+                                    ret.push(new Value("null", Type.CADENA, Type.VALOR, this.row, this.column));
+                                    let r = new Value(ret, Type.CADENA, Type.VECTOR, this.row, this.column);
+                                    r.used = false;
+                                    return r;
                                 }
 
                             }
-                            this.body.get(i).used = true;
-                            Expression eT = this.body.get(i).execute(s);
-                            if (eT != null && eT.type_exp == Type.VALOR) {
+                            this.body[i].used = true;
+                            let eT = this.body[i].operate(s);
+                            if (eT != null && eT.type_exp === Type.VALOR) {
                                 return eT;
-                            } else if (eT != null && eT.type_exp == Type.BREAK) {
+                            } else if (eT != null && eT.type_exp === Type.BREAK) {
                                 return null;
-                            } else if (eT != null && eT.type_exp == Type.CONTINUE) {
+                            } else if (eT != null && eT.type_exp === Type.CONTINUE) {
                                 break;
                             }
                         }
-                    } else {
-                        olc2_p1.IDE.txtExec += "Error Semantico, Hubo un error al realizar la asignacion de la variable \"" + id + "\". Linea: " + row + " Columna: " + column + "\n";
-                        olc2_p1.IDE.et.putError(new error.Error(error.Error.TypeError.SEMANTICO, "Hubo un error al realizar la asignacion de la variable " + id + ".", row, column));
                     }
+                    else 
+                        break;
+                    this.assignment.operate(tab);
                 }
+
             }
-        */
-        }
-        else {
-            //olc2_p1.IDE.txtExec += "Error Semantico, Expresion No Valida para utilizar, se esperaba ID, VECTOR, MATRIZ, LISTA o VECTOR. Linea: " + row + " Columna: " + column + "\n";
-            //olc2_p1.IDE.et.putError(new error.Error(error.Error.TypeError.SEMANTICO, "Expresion No Valida para utilizar, se esperaba ID, VECTOR, MATRIZ, LISTA o VECTOR.", row, column));
         }
         return null;
     }

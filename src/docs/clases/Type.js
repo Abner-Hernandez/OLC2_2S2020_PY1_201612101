@@ -41,7 +41,9 @@ const Type = {
     ACCESS: 'ACESS',
     LLAMADA: 'LLAMADA',
     ARREGLO: 'ARREGLO',
-    SINDEFINIR: 'SINDEFINIR'
+    SINDEFINIR: 'SINDEFINIR',
+    SENTENCIA: 'SENTENCIA',
+    GRAFICAR: 'GRAFICAR'
 }
 
 export default Type;
