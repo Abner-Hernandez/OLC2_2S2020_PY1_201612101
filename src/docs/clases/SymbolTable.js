@@ -40,11 +40,8 @@ class SymbolTable{
     }
 
     addSymbol(symb) {
-        if (!this.exists(symb.id)) {
-            this.symbols.push(symb);
-            return true;
-        }
-        return false;
+        this.symbols.push(symb);
+        return true;
     }
 
     addSymbolDirect(symb) {
@@ -104,12 +101,6 @@ class SymbolTable{
             }
         }
         return false;
-    }
-
-    unionTables(t) {
-        for (let s in t.symbols) {
-            this.addSymbol(s);
-        }
     }
 
     addFunction(fun) {

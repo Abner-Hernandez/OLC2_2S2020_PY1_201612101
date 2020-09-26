@@ -95,6 +95,7 @@ import Type from './clases/Type';
 import SymbolTable from './clases/SymbolTable';
 import TernaryOperator from './clases/TernaryOperator';
 import { add_error_E } from './clases/Reports';
+import UnaryNoReturn from './clases/UnaryNoReturn';
 import { simbtable_E } from './clases/Reports';
 export var interprete = (function(){
 var o=function(k,v,o,l){for(o=o||{},l=k.length;l--;o[k[l]]=v);return o},$V0=[1,16],$V1=[1,22],$V2=[1,29],$V3=[1,17],$V4=[1,30],$V5=[1,31],$V6=[1,34],$V7=[1,24],$V8=[1,25],$V9=[1,26],$Va=[1,27],$Vb=[1,28],$Vc=[2,5,7,14,29,51,52,87,88,93,94,95,104],$Vd=[1,49],$Ve=[1,50],$Vf=[1,51],$Vg=[1,52],$Vh=[1,53],$Vi=[1,54],$Vj=[2,5,7,12,14,29,51,52,64,65,66,87,88,91,92,93,94,95,104],$Vk=[1,60],$Vl=[1,63],$Vm=[9,71,72,73,74,75,76],$Vn=[2,169],$Vo=[1,66],$Vp=[1,74],$Vq=[1,72],$Vr=[1,73],$Vs=[1,71],$Vt=[2,5,7,12,14,29,51,52,64,65,66,85,87,88,91,92,93,94,95,104],$Vu=[13,100,101],$Vv=[2,46],$Vw=[1,81],$Vx=[13,15,100,101],$Vy=[2,55],$Vz=[1,84],$VA=[1,90],$VB=[1,108],$VC=[1,100],$VD=[1,99],$VE=[1,96],$VF=[1,98],$VG=[1,101],$VH=[1,102],$VI=[1,103],$VJ=[1,104],$VK=[1,105],$VL=[1,133],$VM=[1,130],$VN=[1,131],$VO=[1,132],$VP=[1,138],$VQ=[9,12,13,15,16,32,42,43,46,71,72,73,74,75,76,100,101,102,103,105,106,108,110,111,112,114,115],$VR=[13,32],$VS=[9,12,13,15,16,32,42,43,46,71,72,73,74,75,76,100,101,102,103,105,106,108,110,111,112,114,115,129],$VT=[1,146],$VU=[1,147],$VV=[12,13,15,16,32,42,43,46,71,72,73,74,75,76,100,101,105,106,108,110,111,112,114,115],$VW=[1,165],$VX=[1,162],$VY=[1,163],$VZ=[1,164],$V_=[1,160],$V$=[1,170],$V01=[1,171],$V11=[12,13,15,16,32,46,100,101,105,106],$V21=[12,13,15,16,32,46,100,101,105,106,108],$V31=[12,13,15,16,32,46,100,101,105,106,108,110,111,112],$V41=[12,13,15,16,32,42,43,46,100,101,105,106,108,110,111,112,114,115],$V51=[1,183],$V61=[1,184],$V71=[12,13,15,16,32,42,43,46,71,72,100,101,105,106,108,110,111,112,114,115],$V81=[1,188],$V91=[1,192],$Va1=[1,195],$Vb1=[12,91,92],$Vc1=[2,12,14,51,52,64,65,66,87,88,91,92,93,94,95,104],$Vd1=[32,46],$Ve1=[1,222],$Vf1=[1,221],$Vg1=[15,32],$Vh1=[2,24],$Vi1=[1,228],$Vj1=[1,231],$Vk1=[2,38],$Vl1=[9,10,12,13,15,32,43,100,101],$Vm1=[1,238],$Vn1=[9,10,12,13,15,32,43,45,100,101],$Vo1=[12,13,15,100,101],$Vp1=[14,30,72,118,120,121,122,123,124,125],$Vq1=[12,13,15,16,32,42,43,46,71,72,74,75,76,100,101,105,106,108,110,111,112,114,115],$Vr1=[1,308],$Vs1=[1,307],$Vt1=[12,15];
@@ -275,7 +276,7 @@ case 75:
  if($$[$0-3].length === 1 && $$[$0-3][0].type === Type.ID){ $$[$0-3] = $$[$0-3][0]; } this.$ = new Assignment($$[$0-3],new Arithmetical($$[$0-3],$$[$0],$$[$0-2],Type.VALOR,this._$.first_line,this._$.first_column),this._$.first_line,this._$.first_column); this.$.change_tipe($$[$0-2]);
 break;
 case 76:
- this.$ = new Unary($$[$0-1],$$[$0],this._$.first_line,this._$.first_column); 
+ this.$ = new UnaryNoReturn($$[$0-1],$$[$0],this._$.first_line,this._$.first_column); 
 break;
 case 77:
  /*DEBERIA AQUI*/if($$[$0-2].length === 1 && $$[$0-2][0].type === Type.ID){ $$[$0-2] = $$[$0-2][0]; } this.$ = new Assignment($$[$0-2],$$[$0],this._$.first_line,this._$.first_column); 
@@ -302,7 +303,7 @@ case 84:
  this.$ = $$[$0]; this.$.id = $$[$0-1]; 
 break;
 case 86:
- this.$ = new Unary($$[$0],".push()",this._$.first_line,this._$.first_column); 
+ this.$ = new UnaryNoReturn($$[$0],".push()",this._$.first_line,this._$.first_column); 
 break;
 case 87:
  this.$ = new Assignment(undefined,undefined,this._$.first_line,this._$.first_column); this.$.change_tipe(Type.ARREGLO);
@@ -506,7 +507,7 @@ case 180:
  this.$ = [$$[$0-1]]; 
 break;
 case 181:
- this.$ = new Unary($$[$0-2],$$[$0-1],this._$.first_line,this._$.first_column); 
+ this.$ = new UnaryNoReturn($$[$0-2],$$[$0-1],this._$.first_line,this._$.first_column); 
 break;
 }
 },

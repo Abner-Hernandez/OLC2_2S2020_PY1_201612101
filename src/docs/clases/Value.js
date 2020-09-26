@@ -86,6 +86,8 @@ class Value {
                                             return rett;
                                         let position = this.value[i].positions[j].operate(tab);
                                         aux_return = r.value[position.value];
+                                        if(aux_return === undefined)
+                                            aux_return = r.value[Math.round(position.value)];
                                     }catch(e){ console.log(e); try{ add_error_E( {error: "La variable no es un arreglo o no existe la posicion", type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){ console.log(e); } return null;}
                                     j++;
                                     while(j < this.value[i].positions.length)
@@ -97,6 +99,8 @@ class Value {
                                                 return rett;
                                             let position = this.value[i].positions[j].operate(tab);
                                             aux_return = aux_return.value[position.value];
+                                            if(aux_return === undefined)
+                                                aux_return = r.value[Math.round(position.value)];
                                         }catch(e){ console.log(e); }
                                         j++;
                                     }
@@ -137,6 +141,8 @@ class Value {
                                             return rett;
                                         let position = this.value[i].positions[j].operate(tab);
                                         aux_return = aux_return.value[position.value];
+                                        if(aux_return === undefined)
+                                            aux_return = aux_return.value[Math.round(position.value)];
                                     }catch(e){ console.log(e); try{ add_error_E( {error: "La variable no es un arreglo o no existe la posicion", type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){ console.log(e); } return null;}
                                     j++;
                                     while(j < this.value[i].positions.length)
@@ -148,6 +154,8 @@ class Value {
                                                 return rett;
                                             let position = this.value[i].positions[j].operate(tab);
                                             aux_return = aux_return[position.value];
+                                            if(aux_return === undefined)
+                                                aux_return = aux_return.value[Math.round(position.value)];
                                         }catch(e){ console.log(e); try{ add_error_E( {error: "La variable no es un arreglo o no existe la posicion", type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){ console.log(e); } return null;}
                                         j++;
                                     }

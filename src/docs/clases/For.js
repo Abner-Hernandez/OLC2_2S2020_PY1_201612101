@@ -27,8 +27,8 @@ class For{
             a = s.getSymbol(this.declaration.id);
         }else if (this.declaration instanceof Assignment)
         {
-            this.declaration.operate(tab)
-            a = tab.getSymbol(this.declaration.id);
+            this.declaration.operate(s)
+            a = s.getSymbol(this.declaration.id);
             assing = true;
         }else
         {
@@ -43,7 +43,7 @@ class For{
         {
             if(this.exp === "in" || this.exp === "of")
             {
-                let e = this.exp.operate(tab);
+                let e = this.exp.operate(s);
                 if (e != null) {
                     if (e.type_exp === Type.VALOR) {
                         let a = new Assignment(this.declaration.id, this.exp, this.row, this.column);
@@ -96,7 +96,6 @@ class For{
                                     s.symbols.push(a);
                                 let a = new Assignment(a.id, tp, this.row, this.column);
                                 a.operate(s);
-                                s.tsuper = tab;
                                 if (a != null) {
                                     for (let i = 0; i < this.body.length; i++) {
                                         if (this.body[i].type_exp === Type.RETURN) {
@@ -127,7 +126,7 @@ class For{
                                 }
                             }
                         }
-                        else if(this.exp === "in")
+                        else if(this.exp === "of")
                         {
                             for (let tp of t) {
                                 s = new SymbolTable(tab);
@@ -135,7 +134,6 @@ class For{
                                     s.symbols.push(a);
                                 let a = new Assignment(a.id, tp, this.row, this.column);
                                 a.operate(s);
-                                s.tsuper = tab;
                                 if (a != null) {
                                     for (let i = 0; i < this.body.length; i++) {
                                         if (this.body[i].type_exp === Type.RETURN) {
@@ -181,14 +179,11 @@ class For{
                         s.symbols.push(a);
                     let rr = this.exp.operate(s);
                     if (rr === null) {
-                        //error
                         try{ add_error_E( {error: "No se puede ejecutar la instruccion for, se necesita una condicion logica o relacional.", type: 'SINTACTICO', line: this.row, column: this.column} ); }catch(e){ console.log(e); }
-                        //count.putError(Type.SINTACTICO, "No se puede ejecutar la instruccion If, se necesita una condicion logica o relacional.", this.lif[j].row, this.lif[j].column);
                         return null;
                     }
                     if (rr.type !== Type.BOOL) {
                         try{ add_error_E( {error: "No se puede ejecutar la operacion " + rr.type + ", se necesita una condicion logica o relacional.", type: 'SINTACTICO', line: this.row, column: this.column} ); }catch(e){ console.log(e); }
-                        //count.putError(Type.SINTACTICO, "No se puede ejecutar la operacion " + r.type + ", se necesita una condicion logica o relacional.", this.lif[j].row, this.lif[j].column);
                         return null
                     }
                     if (rr.value === true) {
@@ -216,10 +211,11 @@ class For{
                                 break;
                             }
                         }
+                        this.assignment.operate(s);
+                        a = s.getSymbol(this.declaration.id);
                     }
                     else 
                         break;
-                    this.assignment.operate(s);
                 }
 
             }

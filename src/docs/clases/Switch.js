@@ -79,26 +79,13 @@ class Switch {
                     } else {
                         this.cases[i].body[nn].used = true;
                         let eT = this.cases[i].body[nn].operate(tab);
-                        if (eT !== null && eT.type_exp === Type.BREAK) {
-                            return null;
-                        } else if (eT !== null && eT.type_exp === Type.CONTINUE) {
-                            break;
-                        } else if (eT !== null /*&& eT.type_exp === Type.VALOR*/) {
-                            if(eT.type_exp === Type.VECTOR){
-                                let t = eT.value;
-                                if(t.length === 1){
-                                    if(t[0].value === "null"){
-                                    
-                                    }else{
-                                        return eT;
-                                    }
-                                }else{
-                                    return eT;
-                                }
-                            }else {
+                        if (eT != null && eT.type_exp == Type.VALOR) {
+                            if (!eT.used) {
+                                eT.used = true;
                                 return eT;
                             }
-                            
+                        } else if (eT != null && (eT.type_exp == Type.BREAK || eT.type_exp == Type.CONTINUE)) {
+                            return null;
                         }
                     }
 

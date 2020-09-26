@@ -307,7 +307,7 @@ INSTRUCTION
 
 ASSIGNMENT
     : IDVALOR OPERADOR igual EXPRT { if($1.length === 1 && $1[0].type === Type.ID){ $1 = $1[0]; } $$ = new Assignment($1,new Arithmetical($1,$4,$2,Type.VALOR,this._$.first_line,this._$.first_column),this._$.first_line,this._$.first_column); $$.change_tipe($2);}
-    | id DECINC { $$ = new Unary($1,$2,this._$.first_line,this._$.first_column); }
+    | id DECINC { $$ = new UnaryNoReturn($1,$2,this._$.first_line,this._$.first_column); }
     | IDVALOR igual EXPRT { /*DEBERIA AQUI*/if($1.length === 1 && $1[0].type === Type.ID){ $1 = $1[0]; } $$ = new Assignment($1,$3,this._$.first_line,this._$.first_column); }
 ;
 
@@ -323,7 +323,7 @@ OPERADOR
 ASSIGMENTWITHTYPE
      : IDVALOR CONTENTASWT { $$ = $2; $$.id = $1; }
      | ASSIGNMENT  { $$ = $1; }
-     | IDVALORASS { $$ = new Unary($1,".push()",this._$.first_line,this._$.first_column); }
+     | IDVALORASS { $$ = new UnaryNoReturn($1,".push()",this._$.first_line,this._$.first_column); }
 ;
 
 CONTENTASWT
@@ -549,5 +549,5 @@ IDVALOR2ASS
 ;
 
 GRAFICAR
-     :resgraficar_ts parenta parentc { $$ = new Unary($1,$2,this._$.first_line,this._$.first_column); }
+     :resgraficar_ts parenta parentc { $$ = new UnaryNoReturn($1,$2,this._$.first_line,this._$.first_column); }
 ;

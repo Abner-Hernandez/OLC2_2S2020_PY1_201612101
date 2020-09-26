@@ -43,13 +43,9 @@ class While {
                         }
                     }
                     aux = this.exp.operate(tab);
-                    
                     if (aux.type_exp === Type.VALOR) {
                         condicion = aux.value
                     }
-                    
-//                    System.out.println("ss: "+ss);
-//                    ss++;
                 }
             } else {
                 try{ add_error_E( {error: "No se puede ejecutar la operacion " + aux.type.toString() + ", se necesita una condicion logica o relacional.", type: 'SINTACTICO', line: this.row, column: this.column} ); }catch(e){ console.log(e); }

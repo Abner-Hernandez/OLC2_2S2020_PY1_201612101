@@ -44,7 +44,10 @@ const Type = {
     SINDEFINIR: 'SINDEFINIR',
     SENTENCIA: 'SENTENCIA',
     GRAFICAR: 'GRAFICAR',
-    IMPRIMIR: 'IMPRIMIR'
+    IMPRIMIR: 'IMPRIMIR',
+    BREAK: 'BREAK',
+    CONTINUE: 'CONTINUE',
+    RETURN: 'RETURN'
 }
 
 export default Type;
