@@ -15,7 +15,7 @@ class Declaration {
         this.column = _column;
     }
     operate(tab) {
-        let a = tab.getSymbol(this.id);
+        let a = tab.getSymbol_dec(this.id);
         let tmpExp;
         if(this.value !== undefined && this.value.type === Type.OBJETO)
             this.value.type = this.type;

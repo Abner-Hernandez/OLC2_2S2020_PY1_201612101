@@ -165,6 +165,18 @@ class Relational {
                     } else if (this.type === Type.DIFERENTE) {
                         return new Value(tempL.value !== tempR.value, Type.BOOL, Type.VALOR, this.row, this.column);
                     }
+                }else if (tempL.type === undefined && tempL.value === undefined) {
+                    if (this.type === Type.IDENTICO) {
+                        return new Value(tempL.value === tempR.value, Type.BOOL, Type.VALOR, this.row, this.column);
+                    } else if (this.type === Type.DIFERENTE) {
+                        return new Value(tempL.value !== tempR.value, Type.BOOL, Type.VALOR, this.row, this.column);
+                    }
+                }else if (tempR.type === undefined && tempR.value === undefined) {
+                    if (this.type === Type.IDENTICO) {
+                        return new Value(tempL.value === tempR.value, Type.BOOL, Type.VALOR, this.row, this.column);
+                    } else if (this.type === Type.DIFERENTE) {
+                        return new Value(tempL.value !== tempR.value, Type.BOOL, Type.VALOR, this.row, this.column);
+                    }
                 }
             }
 

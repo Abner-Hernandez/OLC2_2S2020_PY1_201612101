@@ -1,6 +1,6 @@
 %{
      var symbolt = new SymbolTable(null);
-     var global_var = [];
+     //var global_var = [];
      var structures = [];
      var nuevo_arreglo = false;
      var existe = false;
@@ -20,12 +20,13 @@
 //incremento y decremento
 "++"              return 'incremento';
 "--"              return 'decremento';
+"**"             return 'potencia';
+
 
 //aritmeticos
 "+"              return 'suma';
 "-"              return 'resta';   
 "*"              return 'multiplicacion';
-"**"             return 'potencia';
 "/"              return 'slash';
 "%"              return 'modulo';
 "?"              return 'quest';
@@ -95,7 +96,7 @@
 /* Espacios en blanco */
 [ \r\t\n]+                  {}
 [0-9]+"."[0-9]+\b|[0-9]+\b    			     return 'number';
-([\"]("\\\""|[^"])*[^\\][\"])|[\"][\"]|"'"[^]"'"       return 'cadena';
+([\"]("\\\""|[^"])*[^\\][\"])|[\"][\"]|[\'][^']*[\']|"`"[^`]*"`"        return 'cadena';
 ([a-zA-Z"_"])[a-z0-9A-Z"_""ñ""Ñ"]*                     return 'id';
 <<EOF>>                 return 'EOF';
 
@@ -123,15 +124,18 @@
 
 ini
 	: INSTRUCTIONSG EOF {
-          console.log("todo termino bien")
-          var tab = new SymbolTable(null);
-          tab.add_types(structures);
-          var tmp = $1;
-          for(let aux of tmp)
+          try
           {
-               aux.operate(tab);
-          }
-          structures = [];
+               console.log("todo termino bien")
+               symbolt.add_types(structures);
+               var tmp = $1;
+               for(let aux of tmp)
+               {
+                    aux.operate(symbolt);
+               }
+               structures = [];
+               symbolt = new SymbolTable(null);
+          }catch(e){console.log(e); structures = []; symbolt = new SymbolTable(null);}
      }
      | EOF { console.log("termino vacio") }
 ;
@@ -155,8 +159,8 @@ INSTRUCTIONSG
 ;
 
 INSTRUCTIONG
-	: FUNCTION {  existe = false; for(var d of symbolt.functions){if(d.id === $1.id) { existe = true; break;}} if(existe) symbolt.addFunction($1); else try{ add_error_E( {error: "Ya existe la funcion con el nombre" + $1.id, type: 'SINTACTICO', line: this.row, column: this.column} ); }catch(e){ console.log(e); } $$ = null; }
-     | DECLARATION puntocoma { if($1 != null){$1.type_var = Type.GLOBAL; global_var.push($1);} $$ = $1;/* declaration inst */}
+	: FUNCTION { symbolt.addFunction($1); $$ = null; }
+     | DECLARATION puntocoma { if($1 != null){$1.type_var = Type.GLOBAL; /*global_var.push($1);*/} $$ = $1;/* declaration inst */}
      | ASSIGMENTWITHTYPE puntocoma{ $$ = $1; }
      | DEFTYPES { $$ = null; }
      | IF { $$ = $1; }
@@ -193,8 +197,8 @@ TYPE
 ;
 
 TYPES
-     : resarray menor TYPES mayor { $$ = {id: $3, access: Type.VECTOR, type: Type.PRIMITIVO}; }
-     | TYPE llavea llavec { $$ = {id: $1, access: Type.VECTOR, type: Type.PRIMITIVO}; if($1 != Type.ENTERO && $1 != Type.BOOL && $1 != Type.CADENA) $$.type = Type.OBJETO; }
+     : resarray menor TYPES mayor { $$ = {id: Type.ARREGLO, access: Type.ARREGLO, type: Type.PRIMITIVO}; }
+     | TYPE MULTIDIMENSION { $$ = {id: Type.ARREGLO, access: Type.ARREGLO, type: Type.PRIMITIVO}; if($1 != Type.ENTERO && $1 != Type.BOOL && $1 != Type.CADENA) $$.type = Type.OBJETO; }
      | TYPE { $$ = {id: $1, access: Type.VALOR, type: Type.VALOR}; if($1 != Type.ENTERO && $1 != Type.BOOL && $1 != Type.CADENA) $$.type = Type.OBJETO; }
 ;
 
@@ -216,15 +220,15 @@ LISTAPARAMETROS
 
 LISTAPARAMETROSPRIMA
      : ALPHA LISTAPARAMETROSPRIMA { $$ = $0;}
-     | {}
+     | {$$ = $1;}
 ;
 
 BETHA
-     : id dospuntos TYPES { $$ = []; $$.push(new Declaration([$1],null,$3.id,$3.access,Type.LOCAL,Type.VAR,/*Type.PRIMITIVO,*/this._$.first_line,this._$.first_column)); }
+     : id dospuntos TYPES { $$ = []; $$.push(new Declaration($1,null,$3.id,$3.access,Type.LOCAL,Type.VAR,/*Type.PRIMITIVO,*/this._$.first_line,this._$.first_column)); }
 ;
 
 ALPHA
-     : coma id dospuntos TYPES { $$ = $0; $$.push(new Declaration([$2],null,$4.id,$4.access,Type.LOCAL,Type.VAR,/*Type.PRIMITIVO,*/this._$.first_line,this._$.first_column)); }
+     : coma id dospuntos TYPES { $$ = $0; $$.push(new Declaration($2,null,$4.id,$4.access,Type.LOCAL,Type.VAR,/*Type.PRIMITIVO,*/this._$.first_line,this._$.first_column)); }
 ;
 
 TYPEVAR
@@ -294,10 +298,10 @@ INSTRUCTION
      | FOR { $$ = $1; }
      | PRINT puntocoma { $$ = $1; }
      | CALLF puntocoma { $$ = $1; }
-     | resbreak SEMICOLON {$$ = new Break(Type.BREAK,this._$.first_line,this._$.first_column)}
-     | rescontinue SEMICOLON {$$ = new Continue(Type.CONTINUE,this._$.first_line,this._$.first_column)}
-     | resreturn EXPRT SEMICOLON {$$ = new Return($2,null,Type.VALOR,this._$.first_line,this._$.first_column);}
-     | resreturn puntocoma {$$ = new Return(null,null,Type.VALOR,this._$.first_line,this._$.first_column);}
+     | resbreak puntocoma {$$ = new Break(Type.BREAK,this._$.first_line,this._$.first_column)}
+     | rescontinue puntocoma {$$ = new Continue(Type.CONTINUE,this._$.first_line,this._$.first_column)}
+     | resreturn EXPRT puntocoma {$$ = new Return($2,Type.RETURN,Type.RETURN,this._$.first_line,this._$.first_column);}
+     | resreturn puntocoma {$$ = new Return(null,Type.RETURN,Type.RETURN,this._$.first_line,this._$.first_column);}
      | error { try{ add_error_E( {error: yytext, type: 'SINTACTICO', line: @1.first_line, column: @1.first_column} ); }catch(e){ console.log(e); } }
 ;
 
@@ -324,7 +328,7 @@ ASSIGMENTWITHTYPE
 
 CONTENTASWT
      : igual llavea llavec { $$ = new Assignment(undefined,undefined,this._$.first_line,this._$.first_column); $$.change_tipe(Type.ARREGLO);}
-     | igual DECASSTYPE { $$ = new Assignment($2,undefined,this._$.first_line,this._$.first_column); }
+     | igual DECASSTYPE { $$ = new Assignment(undefined,$2,this._$.first_line,this._$.first_column); }
 ;
 
 DECASSTYPE
@@ -394,8 +398,8 @@ DOWHILE
 ;
 
 FOR
-     : resfor parenta DEC puntocoma EXPRT puntocoma ASSIG parentc BLOCK { if($3[0] instanceof Declaration){$3.type_var = Type.PRIMITIVO;} $$ = new For($3,$5,$7,$9,this._$.first_line,this._$.first_column);  }
-     | resfor parenta DECLARATION FINON EXP parentc BLOCK { if($3[0] instanceof Declaration){$3.type_var = Type.PRIMITIVO;} $$ = new For($3,$4,$5,$7,this._$.first_line,this._$.first_column); }
+     : resfor parenta DEC puntocoma EXPRT puntocoma ASSIG parentc BLOCK { $$ = new For($3,$5,$7,$9,this._$.first_line,this._$.first_column); }
+     | resfor parenta DECLARATION FINON EXP parentc BLOCK { $$ = new For($3,$4,$5,$7,this._$.first_line,this._$.first_column); }
 ;
 
 ASSIG
@@ -403,7 +407,7 @@ ASSIG
 ;
 
 DEC
-    : DECLARATION {$$ = $1;}
+    : DECLARATION {$$ = $1[0];}
     | ASSIGNMENT {$$ = $1;}
     | {$$ = "";}
 ;
@@ -420,7 +424,7 @@ DECINC
 
 
 PRINT
-    : resprint parenta DATAPRINT parentc {$$ = new Print($3,null, Type.IMPRIMIR,this._$.first_line,this._$.first_column);}
+    : resprint parenta DATAPRINT parentc {$$ = new Print($3,Type.IMPRIMIR, Type.IMPRIMIR,this._$.first_line,this._$.first_column);}
 ;
 
 DATAPRINT
@@ -527,7 +531,7 @@ PARALPHA
 
 PARAMETERSPRIM
      : PARBETHA PARAMETERSPRIM { $$ = $1; /*parametros call*/}
-     | parentc { $$ = $1; /*parametros call*/}
+     | parentc { $$ = $0; /*parametros call*/}
 ;
 
 PARBETHA
@@ -542,4 +546,8 @@ IDVALORASS
 IDVALOR2ASS
      : punto IDVALORASS { $$ = $2;  }
      | punto respush parenta EXPRT parentc { $$ = [$4]; }
+;
+
+GRAFICAR
+     :resgraficar_ts parenta parentc { $$ = new Unary($1,$2,this._$.first_line,this._$.first_column); }
 ;

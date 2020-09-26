@@ -20,23 +20,19 @@ class For{
         let s = new SymbolTable(tab);
         let a;
         let assing = false;
-        if(this.declaration instanceof Array && this.declaration.length === 1)
-        {
-            this.declaration = this.declaration[0];
-            if(this.declaration instanceof Declaration)
-            {
-                this.declaration.operate(s);
-                a = s.getSymbol(this.declaration.id);
-            }else if (this.declaration instanceof Assignment)
-            {
-                this.declaration.operate(tab)
-                a = tab.getSymbol(this.declaration.id);
-                assing = true;
-            }
 
-        }else{
-            try{ add_error_E( {error: "Sentencia for no soporta multiples declaraciones o asignaciones", type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){ console.log(e); }
-            return null;
+        if(this.declaration instanceof Declaration)
+        {
+            this.declaration.operate(s);
+            a = s.getSymbol(this.declaration.id);
+        }else if (this.declaration instanceof Assignment)
+        {
+            this.declaration.operate(tab)
+            a = tab.getSymbol(this.declaration.id);
+            assing = true;
+        }else
+        {
+            try{ add_error_E( {error: "Declaracion del for vacia", type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){ console.log(e); }
         }
 
         if (a === null) 
@@ -181,7 +177,7 @@ class For{
                 while(true)
                 {
                     let s = new SymbolTable(tab);
-                    if(!assing)
+                    if(assing === false)
                         s.symbols.push(a);
                     let rr = this.exp.operate(s);
                     if (rr === null) {
@@ -223,7 +219,7 @@ class For{
                     }
                     else 
                         break;
-                    this.assignment.operate(tab);
+                    this.assignment.operate(s);
                 }
 
             }

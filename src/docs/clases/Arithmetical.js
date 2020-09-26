@@ -60,7 +60,7 @@ class Arithmetical {
                             case Type.DIVISION:
                                 return new Value(tempL.value / tempR.value, Type.ENTERO, Type.VALOR, this.row, this.column);
                             case Type.POTENCIA:
-                                return new Value(Math.pow(tempL.value, tempR.value), Type.DECIMAL, Type.VALOR, this.row, this.column);
+                                return new Value(Math.pow(tempL.value, tempR.value), Type.ENTERO, Type.VALOR, this.row, this.column);
                             case Type.MODULO:
                                 return new Value(tempL.value % tempR.value, Type.ENTERO, Type.VALOR, this.row, this.column);
                             default:
@@ -68,75 +68,11 @@ class Arithmetical {
                                 break;
                         }
                     }
-                } else if (tempL.type === Type.ENTERO && tempR.type === Type.DECIMAL) {
-                    if (null !== this.type) {
-                        switch (this.type) {
-                            case Type.SUMA:
-                                return new Value(tempL.value + tempR.value, Type.DECIMAL, Type.VALOR, this.row, this.column);
-                            case Type.RESTA:
-                                return new Value(tempL.value - tempR.value, Type.DECIMAL, Type.VALOR, this.row, this.column);
-                            case Type.MULTIPLICACION:
-                                return new Value(tempL.value * tempR.value, Type.DECIMAL, Type.VALOR, this.row, this.column);
-                            case Type.DIVISION:
-                                return new Value(tempL.value / tempR.value, Type.DECIMAL, Type.VALOR, this.row, this.column);
-                            default:
-                                try{ add_error_E( {error: "No se puede ejecutar la operacion " + this.type.toString() + ", No reconocida o No Permitida.", type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){ console.log(e); }
-                                break;
-                        }
-                    }
-                } else if (tempL.type === Type.DECIMAL && tempR.type === Type.ENTERO) {
-                    if (null !== this.type) {
-                        switch (this.type) {
-                            case Type.SUMA:
-                                return new Value(tempL.value + tempR.value, Type.DECIMAL, Type.VALOR, this.row, this.column);
-                            case Type.RESTA:
-                                return new Value(tempL.value - tempR.value, Type.DECIMAL, Type.VALOR, this.row, this.column);
-                            case Type.MULTIPLICACION:
-                                return new Value(tempL.value * tempR.value, Type.DECIMAL, Type.VALOR, this.row, this.column);
-                            case Type.DIVISION:
-                                return new Value(tempL.value / tempR.value, Type.DECIMAL, Type.VALOR, this.row, this.column);
-                            default:
-                                try{ add_error_E( {error: "No se puede ejecutar la operacion " + this.type.toString() + ", No reconocida o No Permitida.", type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){ console.log(e); }
-                                break;
-                        }
-                    }
-                } else if (tempL.type === Type.ENTERO && tempR.type === Type.CARACTER) {
-                    if (null !== this.type) {
-                        switch (this.type) {
-                            case Type.SUMA:
-                                return new Value(tempL.value + tempR.value, Type.DECIMAL, Type.VALOR, this.row, this.column);
-                            case Type.RESTA:
-                                return new Value(tempL.value - tempR.value, Type.DECIMAL, Type.VALOR, this.row, this.column);
-                            case Type.MULTIPLICACION:
-                                return new Value(tempL.value * tempR.value, Type.DECIMAL, Type.VALOR, this.row, this.column);
-                            case Type.DIVISION:
-                                return new Value(tempL.value / tempR.value, Type.DECIMAL, Type.VALOR, this.row, this.column);
-                            default:
-                                try{ add_error_E( {error: "No se puede ejecutar la operacion " + this.type.toString() + ", No reconocida o No Permitida.", type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){ console.log(e); }
-                                break;
-                        }
-                    }
-                } else if (tempL.type === Type.CARACTER && tempR.type === Type.ENTERO) {
-                    if (null !== this.type) {
-                        switch (this.type) {
-                            case Type.SUMA:
-                                return new Value(tempL.value + tempR.value, Type.DECIMAL, Type.VALOR, this.row, this.column);
-                            case Type.RESTA:
-                                return new Value(tempL.value - tempR.value, Type.DECIMAL, Type.VALOR, this.row, this.column);
-                            case Type.MULTIPLICACION:
-                                return new Value(tempL.value * tempR.value, Type.DECIMAL, Type.VALOR, this.row, this.column);
-                            case Type.DIVISION:
-                                return new Value(tempL.value / tempR.value, Type.DECIMAL, Type.VALOR, this.row, this.column);
-                            default:
-                                try{ add_error_E( {error: "No se puede ejecutar la operacion " + this.type.toString() + ", No reconocida o No Permitida.", type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){ console.log(e); }
-                                break;
-                        }
-                    }
                 } else if (tempL.type === Type.ENTERO && tempR.type === Type.CADENA) {
                     if (null !== this.type) {
                         switch (this.type) {
                             case Type.SUMA:
-                                return new Value(tempL.value + tempR.value, Type.DECIMAL, Type.VALOR, this.row, this.column);
+                                return new Value(tempL.value + tempR.value, Type.CADENA, Type.VALOR, this.row, this.column);
                             default:
                                 try{ add_error_E( {error: "No se puede ejecutar la operacion " + this.type.toString() + ", No reconocida o No Permitida.", type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){ console.log(e); }
                                 break;
@@ -146,93 +82,11 @@ class Arithmetical {
                     if (null !== this.type) {
                         switch (this.type) {
                             case Type.SUMA:
-                                return new Value(tempL.value + tempR.value, Type.DECIMAL, Type.VALOR, this.row, this.column);
+                                return new Value(tempL.value + tempR.value, Type.CADENA, Type.VALOR, this.row, this.column);
                             default:
                                 try{ add_error_E( {error: "No se puede ejecutar la operacion " + this.type.toString() + ", No reconocida o No Permitida.", type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){ console.log(e); }
                                 break;
                         }
-                    }
-                } else if (tempL.type === Type.DECIMAL && tempR.type === Type.CADENA) {
-                    if (this.type === Type.SUMA) {
-                        return new Value(tempL.value + tempR.value.toString(), Type.CADENA, Type.VALOR, this.row, this.column);
-                    }
-                    
-                } else if (tempL.type === Type.CADENA && tempR.type === Type.DECIMAL) {
-                    if (this.type === Type.SUMA) {
-                        return new Value(tempL.value + tempR.value.toString(), Type.CADENA, Type.VALOR, this.row, this.column);
-                    }
-                    
-                } else if (tempL.type === Type.DECIMAL && tempR.type === Type.CARACTER) {
-                    if (null !== this.type) {
-                        switch (this.type) {
-                            case Type.SUMA:
-                                return new Value(tempL.value + tempR.value, Type.DECIMAL, Type.VALOR, this.row, this.column);
-                            case Type.RESTA:
-                                return new Value(tempL.value - tempR.value, Type.DECIMAL, Type.VALOR, this.row, this.column);
-                            case Type.MULTIPLICACION:
-                                return new Value(tempL.value * tempR.value, Type.DECIMAL, Type.VALOR, this.row, this.column);
-                            case Type.DIVISION:
-                                return new Value(tempL.value / tempR.value, Type.DECIMAL, Type.VALOR, this.row, this.column);
-                            default:
-                                try{ add_error_E( {error: "No se puede ejecutar la operacion " + this.type.toString() + ", No reconocida o No Permitida.", type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){ console.log(e); }
-                                break;
-                        }
-                    }
-                } else if (tempL.type === Type.CARACTER && tempR.type === Type.DECIMAL) {
-                    if (null !== this.type) {
-                        switch (this.type) {
-                            case Type.SUMA:
-                                return new Value(tempL.value + tempR.value, Type.DECIMAL, Type.VALOR, this.row, this.column);
-                            case Type.RESTA:
-                                return new Value(tempL.value - tempR.value, Type.DECIMAL, Type.VALOR, this.row, this.column);
-                            case Type.MULTIPLICACION:
-                                return new Value(tempL.value * tempR.value, Type.DECIMAL, Type.VALOR, this.row, this.column);
-                            case Type.DIVISION:
-                                return new Value(tempL.value / tempR.value, Type.DECIMAL, Type.VALOR, this.row, this.column);
-                            default:
-                                try{ add_error_E( {error: "No se puede ejecutar la operacion " + this.type.toString() + ", No reconocida o No Permitida.", type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){ console.log(e); }
-                                break;
-                        }
-                    }
-                } else if (tempL.type === Type.DECIMAL && tempR.type === Type.DECIMAL) {
-                    if (null !== this.type) {
-                        switch (this.type) {
-                            case Type.SUMA:
-                                return new Value(tempL.value + tempR.value, Type.DECIMAL, Type.VALOR, this.row, this.column);
-                            case Type.RESTA:
-                                return new Value(tempL.value - tempR.value, Type.DECIMAL, Type.VALOR, this.row, this.column);
-                            case Type.MULTIPLICACION:
-                                return new Value(tempL.value * tempR.value, Type.DECIMAL, Type.VALOR, this.row, this.column);
-                            case Type.DIVISION:
-                                return new Value(tempL.value / tempR.value, Type.DECIMAL, Type.VALOR, this.row, this.column);
-                            default:
-                                try{ add_error_E( {error: "No se puede ejecutar la operacion " + this.type.toString() + ", No reconocida o No Permitida.", type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){ console.log(e); }
-                                break;
-                        }
-                    }
-                } else if (tempL.type === Type.CARACTER && tempR.type === Type.CARACTER) {
-                    if (null !== this.type) {
-                        switch (this.type) {
-                            case Type.SUMA:
-                                return new Value(tempL.value + tempR.value, Type.DECIMAL, Type.VALOR, this.row, this.column);
-                            case Type.RESTA:
-                                return new Value(tempL.value - tempR.value, Type.DECIMAL, Type.VALOR, this.row, this.column);
-                            case Type.MULTIPLICACION:
-                                return new Value(tempL.value * tempR.value, Type.DECIMAL, Type.VALOR, this.row, this.column);
-                            case Type.DIVISION:
-                                return new Value(tempL.value / tempR.value, Type.DECIMAL, Type.VALOR, this.row, this.column);
-                            default:
-                                try{ add_error_E( {error: "No se puede ejecutar la operacion " + this.type.toString() + ", No reconocida o No Permitida.", type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){ console.log(e); }
-                                break;
-                        }
-                    }
-                } else if (tempL.type === Type.CARACTER && tempR.type === Type.CADENA) {
-                    if (this.type === Type.SUMA) {
-                        return new Value(tempL.value + tempR.value, Type.CADENA, Type.VALOR, this.row, this.column);
-                    }
-                } else if (tempL.type === Type.CADENA && tempR.type === Type.CARACTER) {
-                    if (this.type === Type.SUMA) {
-                        return new Value(tempL.value + tempR.value, Type.CADENA, Type.VALOR, this.row, this.column);
                     }
                 } else if (tempL.type === Type.CADENA && tempR.type === Type.CADENA) {
                     if (this.type === Type.SUMA) {

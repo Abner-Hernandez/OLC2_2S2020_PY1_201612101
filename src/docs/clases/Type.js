@@ -43,7 +43,8 @@ const Type = {
     ARREGLO: 'ARREGLO',
     SINDEFINIR: 'SINDEFINIR',
     SENTENCIA: 'SENTENCIA',
-    GRAFICAR: 'GRAFICAR'
+    GRAFICAR: 'GRAFICAR',
+    IMPRIMIR: 'IMPRIMIR'
 }
 
 export default Type;

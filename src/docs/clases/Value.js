@@ -35,7 +35,7 @@ class Value {
                     this.value = this.value.replace(/\\n/g, '\n');
                     this.value = this.value.replace(/\\t/g, '\t');
                     this.value = this.value.replace(/\\r/g, '\r');
-                    if (this.value.toString().startsWith("\"")) {
+                    if (this.value.toString().startsWith("\"") || this.value.toString().startsWith("'") || this.value.toString().startsWith("`")) {
                         this.value = this.value.toString().substring(1, this.value.toString().length - 1);
                     }
                     this.value = this.value.toString().replace(/\\\"/g, "\"");
@@ -56,15 +56,6 @@ class Value {
                         return new Value(9, Type.CARACTER, Type.VALOR, this.row, this.column);
                     }
                     return new Value(ret.charCodeAt(0), Type.CARACTER, Type.VALOR, this.row, this.column);
-                case Type.CADENA:
-                    this.valuevalue = this.value.toString().replace("\\n", "\n");
-                    this.value = this.value.toString().replace("\\t", "\t");
-                    this.value = this.value.toString().replace("\\r", "\r");
-                    if (this.value.toString().startsWith("\"")) {
-                        this.value = this.value.toString().substring(1, this.value.toString().length() - 1);
-                    }
-                    this.value = this.value.toString().replace("\\\"", "\"");
-                    return new Value(this.value.toString(), Type.CADENA, this.type_exp, this.row, this.column);
                 case Type.ID:
                     let a = tab.exists(this.value+"");
                     if (a) {
@@ -90,18 +81,26 @@ class Value {
                                     let j = 0;
                                     try
                                     {
-                                        aux_return = r.value[this.value[i].positions[j].value];
+                                        let rett = this.is_pop_push(i,r);
+                                        if(rett !== undefined)
+                                            return rett;
+                                        let position = this.value[i].positions[j].operate(tab);
+                                        aux_return = r.value[position.value];
                                     }catch(e){ console.log(e); try{ add_error_E( {error: "La variable no es un arreglo o no existe la posicion", type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){ console.log(e); } return null;}
                                     j++;
                                     while(j < this.value[i].positions.length)
                                     {
                                         try
                                         {
-                                            aux_return = aux_return.value[this.value[i].positions[j].value];
+                                            let rett = this.is_pop_push(i,aux_return);
+                                            if(rett !== undefined)
+                                                return rett;
+                                            let position = this.value[i].positions[j].operate(tab);
+                                            aux_return = aux_return.value[position.value];
                                         }catch(e){ console.log(e); }
                                         j++;
                                     }
-                                }else if(r.type === Type.ID)
+                                }else if(r.type !== Type.ENTERO && r.type !== Type.BOOL && r.type !== r.CADENA && r.type !== r.ID)
                                     aux_return = r;
                             } else {
                                 try{ add_error_E( {error: "La variable: " + this.value.toString() + "no a sido encontrada", type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){ console.log(e); }
@@ -112,7 +111,7 @@ class Value {
                             try
                             {
                                 let find = false;
-                                for(let dat of aux_return)
+                                for(let dat of aux_return.value)
                                 {
                                     if(this.value[i].value === dat[0])
                                     {
@@ -133,14 +132,22 @@ class Value {
                                     let j = 0;
                                     try
                                     {
-                                        aux_return = aux_return.value[this.value[i].positions[j].value];
+                                        let rett = this.is_pop_push(i,aux_return);
+                                        if(rett !== undefined)
+                                            return rett;
+                                        let position = this.value[i].positions[j].operate(tab);
+                                        aux_return = aux_return.value[position.value];
                                     }catch(e){ console.log(e); try{ add_error_E( {error: "La variable no es un arreglo o no existe la posicion", type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){ console.log(e); } return null;}
                                     j++;
                                     while(j < this.value[i].positions.length)
                                     {
                                         try
                                         {
-                                            aux_return = aux_return[this.value[i].positions[j].value];
+                                            let rett = this.is_pop_push(i,aux_return);
+                                            if(rett !== undefined)
+                                                return rett;
+                                            let position = this.value[i].positions[j].operate(tab);
+                                            aux_return = aux_return[position.value];
                                         }catch(e){ console.log(e); try{ add_error_E( {error: "La variable no es un arreglo o no existe la posicion", type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){ console.log(e); } return null;}
                                         j++;
                                     }
@@ -148,31 +155,9 @@ class Value {
                             }catch(e){ console.log(e); try{ add_error_E( {error: "La variable no es un arreglo o no existe la posicion", type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){ console.log(e); } return null;}
 
                         }
-                        if(i < this.value.length - 1 && this.value[i+1].value === ".pop()")
-                        {
-                            if(aux_return.type === Type.ARREGLO && aux_return.value.length > 0)
-                            {
-                                let aux =  aux_return.value.pop();
-                                if(aux instanceof Value)
-                                {
-                                    return aux;
-                                }
-                            }else
-                            {
-                                try{ add_error_E( {error: "La variable no es un arreglo o no tiene elementos", type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){ console.log(e); }
-                                return null;
-                            }
-                        }else if(i < this.value.length - 1 && this.value[i+1].value === "length")
-                        {
-                            if(aux_return.type === Type.ARREGLO)
-                            {
-                                return new Value(aux_return.value.length, Type.ENTERO, Type.VALOR, this.row, this.column);
-                            }else
-                            {
-                                try{ add_error_E( {error: "La variable no es un arreglo no se puede devolver el tamaño", type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){ console.log(e); }
-                                return null;
-                            }
-                        }
+                        let rett = this.is_pop_push(i,aux_return);
+                        if(rett !== undefined)
+                            return rett;
                         i = i + 1;
                     }
                     return new Value(aux_return.value, aux_return.type, aux_return.type_exp, this.row, this.column);
@@ -182,6 +167,37 @@ class Value {
         } else {
 
         }
+    }
+
+    is_pop_push(i, aux_return)
+    {
+        if(i < this.value.length - 1 && this.value[i+1].value === ".pop()")
+        {
+            if(aux_return.type === Type.ARREGLO && aux_return.value.length > 0)
+            {
+                let aux =  aux_return.value.pop();
+                if(aux instanceof Value)
+                {
+                    return aux;
+                }
+            }else
+            {
+                try{ add_error_E( {error: "La variable no es un arreglo o no tiene elementos", type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){ console.log(e); }
+                return null;
+            }
+        }else if(i < this.value.length - 1 && this.value[i+1].value === "length")
+        {
+            if(aux_return.type === Type.ARREGLO)
+            {
+                return new Value(aux_return.value.length, Type.ENTERO, Type.VALOR, this.row, this.column);
+            }else
+            {
+                try{ add_error_E( {error: "La variable no es un arreglo no se puede devolver el tamaño", type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){ console.log(e); }
+                return null;
+            }
+        }
+        else
+            return undefined;
     }
 
     assign_recursive_type(types, value, tab)
@@ -220,7 +236,7 @@ class Value {
                             {
                                 if(at[1].value === null)
                                 {
-                                    value_return.push([at2.name, new Value(undefined, undefined, Type.VALOR, this.row, this.column)]);
+                                    value_return.push([at2.name, new Value(undefined, at2.type, Type.VALOR, this.row, this.column)]);
                                     break;
                                 }else if(at[1].value instanceof Array)
                                     return this.assign_recursive_type(at2.type, at[1], tab)

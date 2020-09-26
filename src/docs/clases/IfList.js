@@ -48,11 +48,7 @@ class IfList {
 						this.lif[j].body[i].used = this.used;
 						let eT = this.lif[j].body[i].operate(s);
 						if (eT !== null /*&& eT.type_exp === VALOR*/) {
-							//                                    if (!eT.used) {
-							//                                        eT.used = true;
 							return eT;
-							//                                    }
-
 						} else if (eT !== null && (eT.type_exp === Type.BREAK || eT.type_exp === Type.CONTINUE)) {
 							return eT;
 						}
@@ -68,8 +64,6 @@ class IfList {
 			let body = this.elsebody.body;
 			let s = new SymbolTable(tab);
 			for (let i = 0; i < body.length; i++) {
-
-				body[i].operate(s);
 				if (body[i].type_exp === Type.RETURN) {
                     let reE = body[i].operate(s);
                     if (reE !== null) {
@@ -88,11 +82,7 @@ class IfList {
                     body[i].used = this.used;
                     let eT = body[i].operate(s);
                     if (eT !== null && eT.type_exp === Type.VALOR) {
-//                        if (!eT.used) {
-//                            eT.used = true;
-                            return eT;
-//                        }
-
+                        return eT;
                     } else if (eT !== null && (eT.type_exp === Type.BREAK || eT.type_exp === Type.CONTINUE)) {
                         return eT;
                     }

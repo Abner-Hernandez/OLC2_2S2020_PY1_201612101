@@ -4,7 +4,8 @@ class SymbolTable{
     constructor(_tsuper) {
         if (_tsuper !== null) {
             this.functions = _tsuper.functions;
-        }
+        }else
+            this.functions = [];
         this.symbols = [];
         this.tsuper = _tsuper;
         this.types = undefined;
@@ -17,12 +18,18 @@ class SymbolTable{
 
     find_type(value)
     {   
-        let global = this.types;
+        let global;
         let types;
+        if(this.tsuper === null)
+        {
+            global = null;
+            types = this.types;
+        }else
+            global = this.tsuper;
         while(global !== null)
         {
-            types = global;
-            global = this.tsuper;
+            types = global.types;
+            global = global.tsuper;
         }
         for(let type of types)
         {
@@ -57,6 +64,15 @@ class SymbolTable{
         return null;
     }
 
+    getSymbol_dec(name) {
+        for (let i=0; i<this.symbols.length; i++) {
+            if (name === this.symbols[i].id) {
+                return this.symbols[i];
+            }
+        }
+        return null;
+    }
+
     add_simbols_report()
     {
         //{name: $1, type: "undefined", ambit: undefined, row: @1.first_line, column: @1.first_column}
@@ -87,10 +103,6 @@ class SymbolTable{
                 return true;
             }
         }
-//        if(tsuper !== null)
-//        {
-//            return tsuper.exists(val);
-//        }
         return false;
     }
 
@@ -101,8 +113,15 @@ class SymbolTable{
     }
 
     addFunction(fun) {
+        let funciones = this.functions;
+        let aux = this.tsuper;
+        while (aux !== null) {
+            funciones = aux.functions; 
+            aux = aux.tsuper;
+        }
+
         if (!this.existsFunction(fun.id)) {
-            this.functions.push(fun);
+            funciones.push(fun);
             return true;
         } else {
             try{ add_error_E( {error: "Funcion: "+fun.id+", Ya Declarada.", type: 'SINTACTICO', line: this.row, column: this.column} ); }catch(e){ console.log(e); }
@@ -111,17 +130,31 @@ class SymbolTable{
     }
 
     getFunction(name) {
-        for (let f =0; f<this.functions.length; f++) {
-            if (name === this.functions[f].id) {
-                return this.functions[f];
+        let funciones = this.functions;
+        let aux = this.tsuper;
+        while (aux !== null) {
+            funciones = aux.functions; 
+            aux = aux.tsuper;
+        }
+
+        for (let f =0; f<funciones.length; f++) {
+            if (name === funciones[f].id) {
+                return funciones[f];
             }
         }
         return null;
     }
 
     existsFunction(val) {
-        for (let f = 0; f< this.functions.length; f++) {
-            if (this.functions[f].id === val) {
+        let funciones = this.functions;
+        let aux = this.tsuper;
+        while (aux !== null) {
+            funciones = aux.functions; 
+            aux = aux.tsuper;
+        }
+
+        for (let f = 0; f< funciones.length; f++) {
+            if (funciones[f].id === val) {
                 return true;
             }
         }

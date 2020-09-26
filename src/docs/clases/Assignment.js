@@ -42,31 +42,33 @@ class Assignment {
                                 let j = 0;
                                 try
                                 {
+                                    let position = this.id[i].positions[j].operate(tab);
                                     if(i === this.id.length - 1 && j === this.id[i].positions.length - 1)
                                     {
                                         if (this.value === undefined && this.type === Type.ARREGLO)
                                         {
-                                            r.value[this.id[i].positions[j].value] = new Value([], Type.ARREGLO, Type.VALOR, this.row, this.column);
+                                            r.value[position.value] = new Value([], Type.ARREGLO, Type.VALOR, this.row, this.column);
                                         }else if (this.value !== undefined)
                                         {
-                                            let tmpExp = this.value.operate(tab);
+                                            let tmpExp = this.value.operate(tab);                                                
                                             if(tmpExp !== null)
-                                                r.value[this.id[i].positions[j].value] = new Value(tmpExp.value, tmpExp.type, tmpExp.type_exp, this.row, this.column);
+                                                r.value[position.value] = new Value(tmpExp.value, tmpExp.type, tmpExp.type_exp, this.row, this.column);
                                         }
                                         return null;
                                     }
-                                    aux_return = r.value[this.id[i].positions[j].value];
+                                    aux_return = r.value[position.value];
                                 }catch(e){ console.log(e); try{ add_error_E( {error: "La variable no es un arreglo o no existe la posicion", type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){ console.log(e); } return null;}
                                 j++;
                                 while(j < this.id[i].positions.length)
                                 {
                                     try
                                     {
+                                        let position = this.id[i].positions[j].operate(tab);
                                         if(i === this.id.length - 1 && j === this.id[i].positions.length - 1)
                                         {
                                             if (this.value === undefined && aux_return.type === Type.ARREGLO)
                                             {
-                                                aux_return.value[this.id[i].positions[j].value] = new Value([], Type.ARREGLO, Type.VALOR, this.row, this.column);
+                                                aux_return.value[position.value] = new Value([], Type.ARREGLO, Type.VALOR, this.row, this.column);
                                             }else if (this.value !== undefined)
                                             {
                                                 let tmpExp = this.value.operate(tab);
@@ -75,11 +77,13 @@ class Assignment {
                                                     aux_return = new Value([], Type.ARREGLO, Type.VALOR, this.row, this.column);
                                                 }
                                                 if(tmpExp !== null)
-                                                    aux_return.value[this.id[i].positions[j].value] = new Value(tmpExp.value, tmpExp.type, tmpExp.type_exp, this.row, this.column);
+                                                {
+                                                    aux_return.value[position.value] = new Value(tmpExp.value, tmpExp.type, tmpExp.type_exp, this.row, this.column);
+                                                }
                                             }
                                             return null;
                                         }
-                                        aux_return = r.value[this.id[i].positions[j].value];
+                                        aux_return = r.value[position.value];
                                     }catch(e){ console.log(e); }
                                     j++;
                                 }
@@ -104,7 +108,7 @@ class Assignment {
                                    return null;
                                }
                             }
-                        }else if(r.type === Type.ID)
+                        }else if(r.type !== Type.ENTERO && r.type !== Type.BOOL && r.type !== r.CADENA && r.type !== r.ID)
                         {
                             aux_return = r;
                         }
@@ -117,7 +121,7 @@ class Assignment {
                     try
                     {
                         let find = false;
-                        for(let dat of aux_return)
+                        for(let dat of aux_return.value)
                         {
                             if(this.id[i].value === dat[0])
                             {
@@ -138,11 +142,12 @@ class Assignment {
                             let j = 0;
                             try
                             {
+                                let position = this.id[i].positions[j].operate(tab);
                                 if(i === this.id.length - 1 && j === this.id[i].positions.length - 1)
                                 {
                                     if (this.value === undefined && this.type === Type.ARREGLO)
                                     {
-                                        aux_return.value[this.id[i].positions[j].value] = new Value([], Type.ARREGLO, Type.VALOR, this.row, this.column);
+                                        aux_return.value[position.value] = new Value([], Type.ARREGLO, Type.VALOR, this.row, this.column);
                                     }else if (this.value !== undefined)
                                     {
                                         let tmpExp = this.value.operate(tab);
@@ -151,22 +156,23 @@ class Assignment {
                                             aux_return = new Value([], Type.ARREGLO, Type.VALOR, this.row, this.column);
                                         }
                                         if(tmpExp !== null)
-                                            aux_return.value[this.id[i].positions[j].value] = new Value(tmpExp.value, tmpExp.type, tmpExp.type_exp, this.row, this.column);
+                                            aux_return.value[position.value] = new Value(tmpExp.value, tmpExp.type, tmpExp.type_exp, this.row, this.column);
                                     }
                                     return null;
                                 }
-                                aux_return = aux_return.value[this.id[i].positions[j].value];
+                                aux_return = aux_return.value[position.value];
                             }catch(e){ console.log(e); try{ add_error_E( {error: "La variable no es un arreglo o no existe la posicion", type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){ console.log(e); } return null;}
                             j++;
                             while(j < this.id[i].positions.length)
                             {
                                 try
                                 {
+                                    let position = this.id[i].positions[j].operate(tab);
                                     if(i === this.id.length - 1 && j === this.id[i].positions.length - 1)
                                     {
                                         if (this.value === undefined && aux_return.type === Type.ARREGLO)
                                         {
-                                            aux_return.value[this.id[i].positions[j].value] = new Value([], Type.ARREGLO, Type.VALOR, this.row, this.column);
+                                            aux_return.value[position.value] = new Value([], Type.ARREGLO, Type.VALOR, this.row, this.column);
                                         }else if (this.value !== undefined)
                                         {
                                             let tmpExp = this.value.operate(tab);
@@ -175,11 +181,11 @@ class Assignment {
                                                 aux_return = new Value([], Type.ARREGLO, Type.VALOR, this.row, this.column);
                                             }
                                             if(tmpExp !== null)
-                                                aux_return.value[this.id[i].positions[j].value] = new Value(tmpExp.value, tmpExp.type, tmpExp.type_exp, this.row, this.column);
+                                                aux_return.value[position.value] = new Value(tmpExp.value, tmpExp.type, tmpExp.type_exp, this.row, this.column);
                                         }
                                         return null;
                                     }
-                                    aux_return = aux_return.value[this.id[i].positions[j].value];
+                                    aux_return = aux_return.value[position.value];
                                 }catch(e){ console.log(e); }
                                 j++;
                             }
@@ -189,14 +195,17 @@ class Assignment {
                 }
                 i = i + 1;
             }
+            if(this.value.type === Type.OBJETO)
+                this.value.type = aux_return.type;
             let tmpExp = this.value.operate(tab);
+                
             if(tmpExp === null)
                 return null;
             if(aux_return.type === tmpExp.type)
             {
                 
                 aux_return.type_exp = tmpExp.type_exp;
-                aux_return.id = tmpExp.value;
+                aux_return.value = tmpExp.value;
             }
         }else
         {

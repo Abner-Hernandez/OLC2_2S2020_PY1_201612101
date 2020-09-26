@@ -16,12 +16,15 @@ class Logical {
         //let cont = new Cont();
         let tempL = null;
         let tempR = null;
-        if (this.node_right !== null) {
-            tempR = this.node_right.operate(tab);
-        }
 
         if (this.node_left !== null) {
             tempL = this.node_left.operate(tab);
+            if(this.type === Type.AND && tempL.value === false)
+                return new Value(false, Type.BOOL, Type.VALOR, this.row, this.column);
+        }
+
+        if (this.node_right !== null) {
+            tempR = this.node_right.operate(tab);
         }
 
         if (tempR !== null && tempL !== null) {
@@ -40,7 +43,6 @@ class Logical {
                         }
                     }
                     try{ add_error_E( {error: "No se puede ejecutar la operacion " + this.type + ", No reconocida o No Permitida.", type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){ console.log(e); }
-                    //cont.putError(Type.SEMANTICO, "No se puede ejecutar la operacion " + this.type + ", No reconocida o No Permitida.", this.row, this.column);
                 }
             }
         } else if (tempR === null && tempL !== null) {
