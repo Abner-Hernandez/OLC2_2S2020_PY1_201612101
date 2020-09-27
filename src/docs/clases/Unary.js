@@ -17,7 +17,7 @@ class Unary{
          a = tab.getSymbol(this.id[0].value);
       }else
          a = tab.getSymbol(this.id);
-      if(a.type === Type.ENTERO)
+      if(a !== null && a.type === Type.ENTERO)
       {
          let number = a.value;
          if (this.type === Type.INCREMENTO) {
@@ -26,6 +26,17 @@ class Unary{
             a.value = a.value - 1;
          }
             return new Value(number, a.ENTERO, a.VALOR, a.row, a.column);
+      }
+      else if(this.type === Type.RESTA)
+      {
+         let tmpExp = this.id.operate(tab);
+         if(tmpExp === null || tmpExp.type != Type.ENTERO)
+         {
+            try{ add_error_E( {error: "EXPRESION INVALIDA para el operador unario se esperaba ENTERO o DECIMAL.", type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){ console.log(e); }
+         }
+         return new Value(tmpExp.value * -1, Type.ENTERO, Type.VALOR, tmpExp.row, tmpExp.column);
+      }else if(a === null){
+         try{ add_error_E( {error: "EXPRESION INVALIDA para el operador unario se esperaba ENTERO o DECIMAL.", type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){ console.log(e); }
       }
       return null;      
    }

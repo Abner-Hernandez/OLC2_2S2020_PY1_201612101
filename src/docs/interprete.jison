@@ -170,6 +170,7 @@ INSTRUCTIONG
      | FOR { $$ = $1; }
      | PRINT puntocoma { $$ = $1; }
      | CALLF puntocoma { $$ = $1; }
+     | GRAFICAR puntocoma { $$ = $1; }
      | error { try{ add_error_E( {error: yytext, type: 'SINTACTICO', line: @1.first_line, column: @1.first_column} ); }catch(e){ console.log(e); } }
 ;
 //(_type, _type_exp, _id, _param, _body, _row, _col)
@@ -302,6 +303,7 @@ INSTRUCTION
      | rescontinue puntocoma {$$ = new Continue(Type.CONTINUE,this._$.first_line,this._$.first_column)}
      | resreturn EXPRT puntocoma {$$ = new Return($2,Type.RETURN,Type.RETURN,this._$.first_line,this._$.first_column);}
      | resreturn puntocoma {$$ = new Return(null,Type.RETURN,Type.RETURN,this._$.first_line,this._$.first_column);}
+     | GRAFICAR puntocoma { $$ = $1; }
      | error { try{ add_error_E( {error: yytext, type: 'SINTACTICO', line: @1.first_line, column: @1.first_column} ); }catch(e){ console.log(e); } }
 ;
 
@@ -549,5 +551,5 @@ IDVALOR2ASS
 ;
 
 GRAFICAR
-     :resgraficar_ts parenta parentc { $$ = new UnaryNoReturn($1,$2,this._$.first_line,this._$.first_column); }
+     :resgraficar_ts parenta parentc { $$ = new UnaryNoReturn($1,Type.GRAFICAR,this._$.first_line,this._$.first_column); }
 ;

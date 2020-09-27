@@ -191,7 +191,7 @@ INSTRUCTIONG
      | FOR {$$ = new Node(id++,"INSTRUCTIONG");$$.children.push($1);}
      | PRINT puntocoma {$$ = new Node(id++,"INSTRUCTIONG");$$.children.push($1); $$.children.push(new Node(id++,$2));}
      | CALLF puntocoma {$$ = new Node(id++,"INSTRUCTIONG");$$.children.push($1); $$.children.push(new Node(id++,$2));}
-     | GRAFICAR {$$ = new Node(id++,"INSTRUCTION");$$.children.push($1);}
+     | GRAFICAR puntocoma {$$ = new Node(id++,"INSTRUCTION");$$.children.push($1); $$.children.push(new Node(id++,$2));}
      | error { /*this is error*/ console.log($1); }
 ;
 
@@ -364,7 +364,7 @@ INSTRUCTION
      | rescontinue puntocoma {$$ = new Node(id++,"INSTRUCTION"); $$.children.push(new Node(id++,$1)); $$.children.push(new Node(id++,$2));}
      | resreturn EXPRT puntocoma {$$ = new Node(id++,"INSTRUCTION"); $$.children.push(new Node(id++,$1)); $$.children.push($2); $$.children.push(new Node(id++,$3));}
      | resreturn puntocoma {$$ = new Node(id++,"INSTRUCTION"); $$.children.push(new Node(id++,$1)); $$.children.push(new Node(id++,$2));}
-     | GRAFICAR {$$ = new Node(id++,"INSTRUCTION");$$.children.push($1);}
+     | GRAFICAR puntocoma {$$ = new Node(id++,"INSTRUCTION");$$.children.push($1); $$.children.push(new Node(id++,$2));}
      | error { /*this is error*/ console.log($1); }
 ;
 //FALTA THROW

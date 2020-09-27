@@ -27,7 +27,15 @@ class Call {
             return null;
         }
 
-        let s = new SymbolTable(tab);
+        let res = this.id.split("__");
+        let s;
+        if(res.length > 1 || tab.tsuper === null)
+        {
+            s = new SymbolTable(tab);
+        }
+        else{
+            s = new SymbolTable(tab.find_global());
+        }
 
         if (f.param !== null) {
             if (f.param.length !== this.param.length) {
@@ -35,7 +43,7 @@ class Call {
                 return null;
             }
             for (let i = 0; i < f.param.length; i++) {
-                let tmpV = this.param[i].operate(s);
+                let tmpV = this.param[i].operate(tab);
                 if (tmpV === null) {
                     try{ add_error_E( {error: "Parametro en la posicion "+(i+1)+" NO VALIDO.", line: this.row, column: this.column} ); }catch(e){ console.log(e); }
                     return null;

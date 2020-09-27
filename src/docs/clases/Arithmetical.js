@@ -39,14 +39,13 @@ class Arithmetical {
             try{ add_error_E( {error: "Un operando es null", type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){ console.log(e); }
             return
         }
-
-        if(tempR.value === undefined || tempL.value === undefined)
-        {
-            try{ add_error_E( {error: 'Una variable no a sido asignada', type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){ console.log(e); }
-            return null;
-        }
         
         if (tempR !== null && tempL !== null) {
+            if(tempR.value === undefined || tempL.value === undefined)
+            {
+                try{ add_error_E( {error: 'Una variable no a sido asignada', type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){ console.log(e); }
+                return null;
+            }
             if (tempR.type_exp === Type.VALOR && tempL.type_exp === Type.VALOR) {
                 if (tempL.type === Type.ENTERO && tempR.type === Type.ENTERO) {
                     if (null !== this.type) {
@@ -102,8 +101,10 @@ class Arithmetical {
                     }
                 }
             }
+        }else
+        {
+            try{ add_error_E( {error: 'No se Encontrado una Operacion Valida.', type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){ console.log(e); }
         }
-        try{ add_error_E( {error: 'No se Encontrado una Operacion Valida.', type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){ console.log(e); }
         return null;
     }
 

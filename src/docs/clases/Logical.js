@@ -19,7 +19,7 @@ class Logical {
 
         if (this.node_left !== null) {
             tempL = this.node_left.operate(tab);
-            if(this.type === Type.AND && tempL.value === false)
+            if(this.node_left.type !== Type.NOT && this.type === Type.AND && tempL.value === false)
                 return new Value(false, Type.BOOL, Type.VALOR, this.row, this.column);
         }
 
@@ -48,7 +48,7 @@ class Logical {
         } else if (tempR === null && tempL !== null) {
             if (tempL.type_exp === Type.VALOR) {
                 if (this.type === Type.NOT) {
-                    if(this.type_exp !== Type.BOOL){
+                    if(tempL.type !== Type.BOOL){
                         try{ add_error_E( {error: "La expresion necesita ser de tipo booleana", type: 'SEMANTICO', line: this.row, column: this.column} ); }catch(e){ console.log(e); }
                         return null
                     }

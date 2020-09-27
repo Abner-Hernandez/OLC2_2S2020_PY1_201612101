@@ -39,6 +39,18 @@ class SymbolTable{
         return null;
     }
 
+    find_global()
+    {   
+        let global = this.tsuper;
+        let prev = this.tsuper;
+        while(global !== null)
+        {
+            prev = global;
+            global = global.tsuper;
+        }
+        return prev;
+    }
+
     addSymbol(symb) {
         this.symbols.push(symb);
         return true;
