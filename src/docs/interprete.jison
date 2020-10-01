@@ -401,7 +401,7 @@ DOWHILE
 
 FOR
      : resfor parenta DEC puntocoma EXPRT puntocoma ASSIG parentc BLOCK { $$ = new For($3,$5,$7,$9,this._$.first_line,this._$.first_column); }
-     | resfor parenta DECLARATION FINON EXP parentc BLOCK { $$ = new For($3,$4,$5,$7,this._$.first_line,this._$.first_column); }
+     | resfor parenta DECLARATION FINON EXP parentc BLOCK { $$ = new For($3[0],$4,$5,$7,this._$.first_line,this._$.first_column); }
 ;
 
 ASSIG

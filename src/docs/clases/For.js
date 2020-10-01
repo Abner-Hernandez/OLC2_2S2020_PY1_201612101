@@ -43,10 +43,10 @@ class For{
         {
             if(this.exp === "in" || this.exp === "of")
             {
-                let e = this.exp.operate(s);
+                let e = this.assignment.operate(s);
                 if (e != null) {
                     if (e.type_exp === Type.VALOR) {
-                        let a = new Assignment(this.declaration.id, this.exp, this.row, this.column);
+                        let a = new Assignment(new Value(this.declaration.id,Type.ID,Type.VALOR,this.row,this.col) , this.exp, this.row, this.column);
                         a.operate(s);
                         if (a != null) {
                             for (let i = 0; i < this.body.length; i++) {
@@ -92,11 +92,11 @@ class For{
                         {
                             for (let tp in t) {
                                 s = new SymbolTable(tab);
-                                if(!assing)
+                                if(assing === false)
                                     s.symbols.push(a);
-                                let a = new Assignment(a.id, tp, this.row, this.column);
-                                a.operate(s);
-                                if (a != null) {
+                                let as = new Assignment(new Value(this.declaration.id,Type.ID,Type.VALOR,this.row,this.col), new Value(Number(tp),Type.ENTERO,Type.VALOR,this.row,this.column), this.row, this.column);
+                                as.operate(s);
+                                if (as != null) {
                                     for (let i = 0; i < this.body.length; i++) {
                                         if (this.body[i].type_exp === Type.RETURN) {
                                             let reE = this.body[i].operate(s);
@@ -130,11 +130,11 @@ class For{
                         {
                             for (let tp of t) {
                                 s = new SymbolTable(tab);
-                                if(!assing)
+                                if(assing === false)
                                     s.symbols.push(a);
-                                let a = new Assignment(a.id, tp, this.row, this.column);
-                                a.operate(s);
-                                if (a != null) {
+                                let as = new Assignment(new Value(this.declaration.id,Type.ID,Type.VALOR,this.row,this.col), tp, this.row, this.column);
+                                as.operate(s);
+                                if (as != null) {
                                     for (let i = 0; i < this.body.length; i++) {
                                         if (this.body[i].type_exp === Type.RETURN) {
                                             let reE = this.body[i].operate(s);

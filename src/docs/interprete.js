@@ -366,7 +366,7 @@ case 114:
  this.$ = new For($$[$0-6],$$[$0-4],$$[$0-2],$$[$0],this._$.first_line,this._$.first_column); 
 break;
 case 115:
- this.$ = new For($$[$0-4],$$[$0-3],$$[$0-2],$$[$0],this._$.first_line,this._$.first_column); 
+ this.$ = new For($$[$0-4][0],$$[$0-3],$$[$0-2],$$[$0],this._$.first_line,this._$.first_column); 
 break;
 case 117:
 this.$ = $$[$0][0];

@@ -23,7 +23,7 @@ class Print {
             if (e !== null) {
                 if(e.type === Type.ENTERO || e.type === Type.BOOL || e.type === Type.CADENA)
                 {
-                    try{ add_console(e.value.toString(), tab); }catch(e){ console.log(e); }
+                    try{ add_console(e.value.toString()); }catch(e){ console.log(e); }
                 }
                 else
                 {
