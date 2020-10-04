@@ -7,6 +7,7 @@
      let  errores = [];
      let  vars_a = [];
      let  aux_string = "";
+     let name_f = [];
      
      function add_traduction(content)
      {
@@ -166,17 +167,18 @@ INSTRUCTIONG
 ;
 
 FUNCTIONG
-    : resfunction FIDG parenta LISTAPARAMETROS parentc RETURNT BLOCKF { $$ = $1 + " " + $2 + " " + $3 + " " + $4 + " " + $5 + " " + $6 + " " + $7; if(local_function.length > 0){ for (let i = local_function.length -1 ; i > -1; i--) $$ += "\n" + local_function[i];} parent_name = ""; }
-    | resfunction FIDG parenta parentc RETURNT BLOCKF { $$ = $1 + " " + $2 + " " + $3 + " " + $4 + " " + $5 + " " + $6 ; if(local_function.length > 0){ for (let entry of local_function) $$ += "\n" + entry;} parent_name = ""; }
+    : resfunction FIDG parenta LISTAPARAMETROS parentc RETURNT BLOCKF { $$ = $1 + " " + $2 + " " + $3 + " " + $4 + " " + $5 + " " + $6 + " " ; for(let d of name_f){$7 = $7.split(d[0]+"(").join(d[1]+"(");} $$ += $7; if(local_function.length > 0){ for (let entry of local_function){ for(let d of name_f){entry = entry.split(d[0]+"(").join(d[1]+"(");} $$ += "\n" + entry;}} parent_name = ""; name_f = [];}
+    | resfunction FIDG parenta parentc RETURNT BLOCKF { $$ = $1 + " " + $2 + " " + $3 + " " + $4 + " " + $5 + " "  ; for(let d of name_f){$6 = $6.split(d[0]+"(").join(d[1]+"(");} $$ += $6;  if(local_function.length > 0){ for (let entry of local_function){ for(let d of name_f){entry = entry.split(d[0]+"(").join(d[1]+"(");} $$ += "\n" + entry;}} parent_name = ""; name_f = [];}
 ;
 
 FIDG
      :id  { $$ = $1; local_function = []; parent_name = []; parent_name.push($1); }
 ;
-
+//if(local_function.length > 0){ for (let i = local_function.length -1 ; i > -1; i--) $$ += "\n" + local_function[i];}
+//let stripped = value.split(d).join("pruebad(")
 FUNCTIONL
-    : resfunction FIDL parenta LISTAPARAMETROS parentc RETURNT BLOCKF { name_function = ""; for(let i = parent_name.indexOf($2); i > 0 ; i--){ name_function = "___" + parent_name[i] + name_function;} name_function =  parent_name[0] + name_function; $$ = ""; local_function.push($1 + " " + name_function + " " + $3 + " " + $4 + " " + $5 + " " + $6 + " " + $7); parent_name.pop();}
-    | resfunction FIDL parenta parentc RETURNT BLOCKF { name_function = ""; for(let i = parent_name.indexOf($2); i > 0 ; i--){ name_function = "___" + parent_name[i] + name_function;} name_function =  parent_name[0] + name_function; $$ = ""; local_function.push($1 + " " + $2 + " " + $3 + " " + $4 + " " + $5 + " " + $6); parent_name.pop();}
+    : resfunction FIDL parenta LISTAPARAMETROS parentc RETURNT BLOCKF { name_function = ""; for(let i = parent_name.indexOf($2); i > 0 ; i--){ name_function = "___" + parent_name[i] + name_function;} name_function =  parent_name[0] + name_function; $$ = ""; local_function.push($1 + " " + $2 + $3 + " " + $4 + " " + $5 + " " + $6 + " " + $7); parent_name.pop(); name_f.push([$2, name_function]);}
+    | resfunction FIDL parenta parentc RETURNT BLOCKF { name_function = ""; for(let i = parent_name.indexOf($2); i > 0 ; i--){ name_function = "___" + parent_name[i] + name_function;} name_function =  parent_name[0] + name_function; $$ = ""; local_function.push($1 + " " + $2 + $3 + " " + $4 + " " + $5 + " " + $6); parent_name.pop(); name_f.push([$2, name_function]);}
 ;
 
 FIDL
@@ -366,8 +368,8 @@ ASSIGMENTWITHTYPE
 ;
 
 CONTENTASWT
-     : igual llavea llavec { $$ = $1 + " " + $2 + $3; }
-     | igual DECASSTYPE { $$ = $1 + " " + $2; }
+     : igual llavea llavec { $$ = " " + $1 + " " + $2 + $3; }
+     | igual DECASSTYPE { $$ = " " + $1 + " " + $2; }
 ;
 
 DECASSTYPE
@@ -439,7 +441,7 @@ DOWHILE
 
 FOR
      : resfor parenta DEC puntocoma EXPRT puntocoma ASSIG parentc BLOCK { $$ = $1 + $2 + $3 + $4 + " " + $5 + " " + $6 + " " + $7 + $8 + $9;  }
-     | resfor parenta DECLARATION FINON IDVALOR parentc BLOCK { $$ = $1 + $2 + $3 + $4 + $5 + $6 + $7 ;  }
+     | resfor parenta DECLARATION FINON IDVALOR parentc BLOCK { $$ = $1 + $2 + $3 + " " + $4 + " " + $5 + $6 + $7 ;  }
 ;
 
 ASSIG

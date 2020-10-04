@@ -122,19 +122,19 @@ case 20: case 88:
  try{ add_error_T( {error: yytext, type: 'SINTACTICO', line: _$[$0].first_line, column: _$[$0].first_column} ); }catch(e){ console.log(e); } 
 break;
 case 21:
- this.$ = $$[$0-6] + " " + $$[$0-5] + " " + $$[$0-4] + " " + $$[$0-3] + " " + $$[$0-2] + " " + $$[$0-1] + " " + $$[$0]; if(local_function.length > 0){ for (let i = local_function.length -1 ; i > -1; i--) this.$ += "\n" + local_function[i];} parent_name = ""; 
+ this.$ = $$[$0-6] + " " + $$[$0-5] + " " + $$[$0-4] + " " + $$[$0-3] + " " + $$[$0-2] + " " + $$[$0-1] + " " ; for(let d of name_f){$$[$0] = $$[$0].split(d[0]+"(").join(d[1]+"(");} this.$ += $$[$0]; if(local_function.length > 0){ for (let entry of local_function){ for(let d of name_f){entry = entry.split(d[0]+"(").join(d[1]+"(");} this.$ += "\n" + entry;}} parent_name = ""; name_f = [];
 break;
 case 22:
- this.$ = $$[$0-5] + " " + $$[$0-4] + " " + $$[$0-3] + " " + $$[$0-2] + " " + $$[$0-1] + " " + $$[$0] ; if(local_function.length > 0){ for (let entry of local_function) this.$ += "\n" + entry;} parent_name = ""; 
+ this.$ = $$[$0-5] + " " + $$[$0-4] + " " + $$[$0-3] + " " + $$[$0-2] + " " + $$[$0-1] + " "  ; for(let d of name_f){$$[$0] = $$[$0].split(d[0]+"(").join(d[1]+"(");} this.$ += $$[$0];  if(local_function.length > 0){ for (let entry of local_function){ for(let d of name_f){entry = entry.split(d[0]+"(").join(d[1]+"(");} this.$ += "\n" + entry;}} parent_name = ""; name_f = [];
 break;
 case 23:
  this.$ = $$[$0]; local_function = []; parent_name = []; parent_name.push($$[$0]); 
 break;
 case 24:
- name_function = ""; for(let i = parent_name.indexOf($$[$0-5]); i > 0 ; i--){ name_function = "___" + parent_name[i] + name_function;} name_function =  parent_name[0] + name_function; this.$ = ""; local_function.push($$[$0-6] + " " + name_function + " " + $$[$0-4] + " " + $$[$0-3] + " " + $$[$0-2] + " " + $$[$0-1] + " " + $$[$0]); parent_name.pop();
+ name_function = ""; for(let i = parent_name.indexOf($$[$0-5]); i > 0 ; i--){ name_function = "___" + parent_name[i] + name_function;} name_function =  parent_name[0] + name_function; this.$ = ""; local_function.push($$[$0-6] + " " + $$[$0-5] + $$[$0-4] + " " + $$[$0-3] + " " + $$[$0-2] + " " + $$[$0-1] + " " + $$[$0]); parent_name.pop(); name_f.push([$$[$0-5], name_function]);
 break;
 case 25:
- name_function = ""; for(let i = parent_name.indexOf($$[$0-4]); i > 0 ; i--){ name_function = "___" + parent_name[i] + name_function;} name_function =  parent_name[0] + name_function; this.$ = ""; local_function.push($$[$0-5] + " " + $$[$0-4] + " " + $$[$0-3] + " " + $$[$0-2] + " " + $$[$0-1] + " " + $$[$0]); parent_name.pop();
+ name_function = ""; for(let i = parent_name.indexOf($$[$0-4]); i > 0 ; i--){ name_function = "___" + parent_name[i] + name_function;} name_function =  parent_name[0] + name_function; this.$ = ""; local_function.push($$[$0-5] + " " + $$[$0-4] + $$[$0-3] + " " + $$[$0-2] + " " + $$[$0-1] + " " + $$[$0]); parent_name.pop(); name_f.push([$$[$0-4], name_function]);
 break;
 case 26:
  this.$ = $$[$0]; parent_name.push($$[$0]); 
@@ -151,7 +151,7 @@ break;
 case 31:
  this.$ = "\n" + $$[$0]; /*ins local*/
 break;
-case 34: case 64: case 67: case 102: case 161: case 164: case 165:
+case 34: case 64: case 67: case 161: case 164: case 165:
  this.$ = $$[$0-1] + " " + $$[$0]; 
 break;
 case 35: case 68: case 114: case 184:
@@ -199,7 +199,7 @@ break;
 case 63:
  this.$ = $$[$0-3]; this.$ += $$[$0-2] + " " + $$[$0-1] + " " + $$[$0]; vars_a.push({name: $$[$0-1], type: "undefined", ambit: undefined, row: _$[$0-2].first_line, column: _$[$0-2].first_column});/*declaracion*/
 break;
-case 65: case 91: case 101: case 120: case 188:
+case 65: case 91: case 120: case 188:
  this.$ = $$[$0-2] + " " + $$[$0-1] + $$[$0]; 
 break;
 case 66:
@@ -228,6 +228,12 @@ case 89:
 break;
 case 92: case 93: case 94: case 95: case 96: case 97:
  this.$ = " " + $$[$0]; 
+break;
+case 101:
+ this.$ = " " + $$[$0-2] + " " + $$[$0-1] + $$[$0]; 
+break;
+case 102:
+ this.$ = " " + $$[$0-1] + " " + $$[$0]; 
 break;
 case 103:
  this.$ = $$[$0-1] +  "\n    " + $$[$0] ; 
@@ -272,7 +278,7 @@ case 126:
  this.$ = $$[$0-8] + $$[$0-7] + $$[$0-6] + $$[$0-5] + " " + $$[$0-4] + " " + $$[$0-3] + " " + $$[$0-2] + $$[$0-1] + $$[$0];  
 break;
 case 127:
- this.$ = $$[$0-6] + $$[$0-5] + $$[$0-4] + $$[$0-3] + $$[$0-2] + $$[$0-1] + $$[$0] ;  
+ this.$ = $$[$0-6] + $$[$0-5] + $$[$0-4] + " " + $$[$0-3] + " " + $$[$0-2] + $$[$0-1] + $$[$0] ;  
 break;
 case 128:
  this.$ = $$[$0];
@@ -557,10 +563,10 @@ _handle_error:
      let  parent_name = [];
      let  name_function = "";
      let  traduction = "";
-     let  simbol_table = [];
      let  errores = [];
      let  vars_a = [];
      let  aux_string = "";
+     let name_f = [];
      
      function add_traduction(content)
      {
